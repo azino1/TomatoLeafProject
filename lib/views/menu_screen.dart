@@ -1,6 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../constant.dart';
 
@@ -13,20 +16,14 @@ class NewCaptureScreen extends StatefulWidget {
 }
 
 class _NewCaptureScreenState extends State<NewCaptureScreen> {
+  final ImagePicker _picker = ImagePicker();
+  XFile? _imageFile;
+  File? file;
+  late Uint8List imageData;
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
     return Scaffold(
-      // appBar: AppBar(
-      //   toolbarHeight: 300,
-      //   backgroundColor: primaryColor,
-      //   title: const Text('Welcome, Chief Hassen'),
-      //   actions: [
-      //     DropdownButton(items: const [
-      //       DropdownMenuItem(child: Text('English')),
-      //     ], onChanged: (val) {})
-      //   ],
-      // ),
       body: Column(
         children: [
           customAppBar(),
@@ -55,7 +52,7 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
             height: 10,
           ),
           InkWell(
-            onTap: () {},
+            onTap: captureNewImage,
             child: Container(
               margin: const EdgeInsets.only(left: 20, right: 20),
               width: double.infinity,
@@ -137,12 +134,19 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: DropdownButton(
+                value: "English",
                 underline: null,
+                dropdownColor: primaryColor,
                 borderRadius: BorderRadius.circular(8),
                 iconSize: 20,
                 items: const [
                   DropdownMenuItem(
+                      value: "English",
                       child: Text('English',
+                          style: TextStyle(color: Colors.white, fontSize: 12))),
+                  DropdownMenuItem(
+                      value: "Hause",
+                      child: Text('Hausa',
                           style: TextStyle(color: Colors.white, fontSize: 12))),
                 ],
                 onChanged: (val) {}),
@@ -150,5 +154,118 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
         ],
       ),
     );
+  }
+
+  void captureNewImage() async {
+    await pickImage();
+    showImageDailog();
+  }
+
+  void showImageDailog() {
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (context) {
+        final primaryColor = Theme.of(context).primaryColor;
+        return Dialog(
+          child: Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+            padding:
+                const EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
+            height: 400,
+            width: double.infinity * 0.8,
+            constraints: const BoxConstraints(minHeight: 400),
+            child: LayoutBuilder(
+              builder: (context, parentSize) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Complete New Capture",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: MemoryImage(imageData),
+                              fit: BoxFit.cover)),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const SizedBox(
+                      width: 240,
+                      child: Text(
+                        "Please wait for few minutes after submission for the results",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: greyText),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: submitImageforAnalysis,
+                      child: Container(
+                        height: 45,
+                        width: double.infinity * 0.9,
+                        decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(100)),
+                        child: const Center(
+                          child: Text(
+                            "Submit",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void submitImageforAnalysis() async {
+    bool result = await InternetConnectionChecker().hasConnection;
+    if (!result) {
+      errorUpMessage(
+          context, 'No Internet.. We will save your image locally', 'Alert');
+    }
+  }
+
+  Future<void> pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 360.0,
+        maxHeight: 360.0,
+        imageQuality: 100,
+        preferredCameraDevice: CameraDevice.front,
+      );
+
+      file = File(pickedFile!.path);
+      final Uint8List bytes = file!.readAsBytesSync();
+      setState(() {
+        _imageFile = pickedFile;
+        imageData = bytes;
+      });
+    } catch (e) {
+      print("error while picking image is $e");
+      errorUpMessage(context, e.toString(), 'Error Alert');
+    }
   }
 }
