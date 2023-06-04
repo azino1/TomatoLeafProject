@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Flutter Demo',
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -29,6 +28,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
+  /// Controls all the routing and navigation.
   final _router = GoRouter(
     routes: [
       GoRoute(

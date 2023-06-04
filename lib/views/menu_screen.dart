@@ -21,14 +21,31 @@ class NewCaptureScreen extends ConsumerStatefulWidget {
 }
 
 class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
+  /// Initialize the image picker
   final ImagePicker _picker = ImagePicker();
-  XFile? _imageFile;
+
+  // XFile? _imageFile;
+
   File? file;
+
+  //would later hold the imageData after being capture by a user
   late Uint8List imageData;
+
+  /// Would later hold the future call needed by the futurebuilder.
+  ///
+  /// [fetchFuture] would later be transfer to it. It is to able refreshing
   late Future futureHolder;
 
+  ///Holds the state of the submitting button.
+  ///
+  ///True if it is pressed and false if it is not.
+  ///Initially set to false.
   bool isSubmitingImage = false;
 
+  ///Activates the plants fetch listener.
+  ///
+  ///This functions is expected to load before the screen build,
+  /// as it is called inside [initState]
   Future<bool> fetchFuture() async {
     try {
       await ref.read(plantsProvider).fetchPlants();
@@ -38,15 +55,23 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     }
   }
 
+  //will run before the screen builds
   @override
   void initState() {
+    //Here, 'fetchFuture' has been transfer to 'futureHolder'
     futureHolder = fetchFuture();
+    InternetConnectionChecker().onStatusChange.listen((event) {
+      final hasInternet = event == InternetConnectionStatus.connected;
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    ///Holds the primaryColor Theme of this app.
     final primaryColor = Theme.of(context).primaryColor;
+
+    ///Holds the device size that the app is being run on
     final deviceSize = MediaQuery.of(context).size;
     return Scaffold(
       body: Column(
@@ -79,6 +104,9 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                 }
                 if (snapshot.data == true) {
                   return Consumer(builder: (context, ref, _) {
+                    /// [plants] holds the list of plants gotten from the plant listener.
+                    ///
+                    /// It could be empty if there is no plant found.
                     final plants = ref.watch(plantsProvider).plantList;
 
                     return plants.isEmpty
@@ -175,6 +203,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     );
   }
 
+  /// The appBar widget of the capturing screen
   Widget customAppBar() {
     final primaryColor = Theme.of(context).primaryColor;
     final sizeDevice = MediaQuery.of(context).size;
@@ -215,6 +244,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     );
   }
 
+  ///causes the camera to open for image capturing, thereafter activates the dialog box that displays the image picked.
   void captureNewImage() async {
     await pickImage();
     showImageDailog();
@@ -288,7 +318,9 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                                   setState(() {
                                     isSubmitingImage = false;
                                   });
+
                                   if (!mounted) return;
+                                  // closes the dailog.
                                   context.pop();
                                 },
                                 child: Container(
@@ -319,6 +351,10 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     );
   }
 
+  ///submit the image picked to the ML model.
+  ///
+  ///
+  ///if the there is no internet, it activates the listener that saves the image locally
   Future<void> submitImageforAnalysis() async {
     bool result = await InternetConnectionChecker().hasConnection;
     if (!result) {
@@ -332,6 +368,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     } else {}
   }
 
+  ///Does the actuall capturing of the image.
   Future<void> pickImage() async {
     try {
       final pickedFile = await _picker.pickImage(
@@ -345,7 +382,8 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
       file = File(pickedFile!.path);
       final Uint8List bytes = file!.readAsBytesSync();
       setState(() {
-        _imageFile = pickedFile;
+        // _imageFile = pickedFile;
+
         imageData = bytes;
       });
     } catch (e) {

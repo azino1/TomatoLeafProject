@@ -21,6 +21,7 @@ class Plant {
 
   // }
 
+  ///Collects data to build a plant object.
   factory Plant.fromLocalMemory(Map<String, dynamic> data) {
     return Plant(
         id: data['id'],
