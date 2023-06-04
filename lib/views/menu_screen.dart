@@ -1,32 +1,79 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../constant.dart';
+import '../models/plant.dart';
+import '../providers/plant_data_provider.dart';
 
-class NewCaptureScreen extends StatefulWidget {
+class NewCaptureScreen extends ConsumerStatefulWidget {
   static const routeName = "/new-captured";
   const NewCaptureScreen({super.key});
 
   @override
-  State<NewCaptureScreen> createState() => _NewCaptureScreenState();
+  ConsumerState<NewCaptureScreen> createState() => _NewCaptureScreenState();
 }
 
-class _NewCaptureScreenState extends State<NewCaptureScreen> {
+class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
+  /// Initialize the image picker
+  final ImagePicker _picker = ImagePicker();
+
+  // XFile? _imageFile;
+
+  File? file;
+
+  //would later hold the imageData after being capture by a user
+  late Uint8List imageData;
+
+  /// Would later hold the future call needed by the futurebuilder.
+  ///
+  /// [fetchFuture] would later be transfer to it. It is to able refreshing
+  late Future futureHolder;
+
+  ///Holds the state of the submitting button.
+  ///
+  ///True if it is pressed and false if it is not.
+  ///Initially set to false.
+  bool isSubmitingImage = false;
+
+  ///Activates the plants fetch listener.
+  ///
+  ///This functions is expected to load before the screen build,
+  /// as it is called inside [initState]
+  Future<bool> fetchFuture() async {
+    try {
+      await ref.read(plantsProvider).fetchPlants();
+      return true;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  //will run before the screen builds
+  @override
+  void initState() {
+    //Here, 'fetchFuture' has been transfer to 'futureHolder'
+    futureHolder = fetchFuture();
+    InternetConnectionChecker().onStatusChange.listen((event) {
+      final hasInternet = event == InternetConnectionStatus.connected;
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ///Holds the primaryColor Theme of this app.
     final primaryColor = Theme.of(context).primaryColor;
+
+    ///Holds the device size that the app is being run on
+    final deviceSize = MediaQuery.of(context).size;
     return Scaffold(
-      // appBar: AppBar(
-      //   toolbarHeight: 300,
-      //   backgroundColor: primaryColor,
-      //   title: const Text('Welcome, Chief Hassen'),
-      //   actions: [
-      //     DropdownButton(items: const [
-      //       DropdownMenuItem(child: Text('English')),
-      //     ], onChanged: (val) {})
-      //   ],
-      // ),
       body: Column(
         children: [
           customAppBar(),
@@ -41,21 +88,56 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
               ),
             ),
           ),
-          Expanded(
-            child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return dataCard();
-                },
-                separatorBuilder: (context, index) => const Divider(),
-                itemCount: 12),
-          ),
+          FutureBuilder(
+              future: futureHolder,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator.adaptive(
+                        backgroundColor: primaryColor,
+                      ),
+                    ),
+                  );
+                }
+                if (snapshot.data == true) {
+                  return Consumer(builder: (context, ref, _) {
+                    /// [plants] holds the list of plants gotten from the plant listener.
+                    ///
+                    /// It could be empty if there is no plant found.
+                    final plants = ref.watch(plantsProvider).plantList;
+
+                    return plants.isEmpty
+                        ? SizedBox(
+                            height: deviceSize.height * 0.52,
+                            child: const Center(
+                                child: Text("No Plant capture yet.. ")),
+                          )
+                        : Expanded(
+                            child: ListView.separated(
+                                itemBuilder: (context, index) {
+                                  return dataCard(plants[index]);
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const Divider(),
+                                itemCount: plants.length),
+                          );
+                  });
+                }
+
+                return Center(
+                  child: Text(snapshot.error.toString()),
+                );
+              }),
           const SizedBox(height: 20),
           Text('Click here to take a photo of the plant'),
           const SizedBox(
             height: 10,
           ),
           InkWell(
-            onTap: () {},
+            onTap: captureNewImage,
             child: Container(
               margin: const EdgeInsets.only(left: 20, right: 20),
               width: double.infinity,
@@ -86,7 +168,7 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
     );
   }
 
-  Widget dataCard() {
+  Widget dataCard(Plant plant) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Column(
@@ -95,7 +177,7 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Leaf name',
+              Text(plant.PlantName,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               Row(
                 children: [
@@ -104,7 +186,9 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                         color: const Color(0xffF4CE6B)),
-                    child: Text('Pending'),
+                    child: plant.isPending
+                        ? const Text('Pending')
+                        : const Text('Done'),
                   ),
                   const SizedBox(width: 25),
                   const Icon(Icons.arrow_forward_ios)
@@ -113,12 +197,13 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
             ],
           ),
           const SizedBox(height: 5),
-          const Text('12:00 pm')
+          Text(DateFormat.yMd().format(plant.time))
         ],
       ),
     );
   }
 
+  /// The appBar widget of the capturing screen
   Widget customAppBar() {
     final primaryColor = Theme.of(context).primaryColor;
     final sizeDevice = MediaQuery.of(context).size;
@@ -137,12 +222,19 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: DropdownButton(
+                value: "English",
                 underline: null,
+                dropdownColor: primaryColor,
                 borderRadius: BorderRadius.circular(8),
                 iconSize: 20,
                 items: const [
                   DropdownMenuItem(
+                      value: "English",
                       child: Text('English',
+                          style: TextStyle(color: Colors.white, fontSize: 12))),
+                  DropdownMenuItem(
+                      value: "Hause",
+                      child: Text('Hausa',
                           style: TextStyle(color: Colors.white, fontSize: 12))),
                 ],
                 onChanged: (val) {}),
@@ -150,5 +242,153 @@ class _NewCaptureScreenState extends State<NewCaptureScreen> {
         ],
       ),
     );
+  }
+
+  ///causes the camera to open for image capturing, thereafter activates the dialog box that displays the image picked.
+  void captureNewImage() async {
+    await pickImage();
+    showImageDailog();
+  }
+
+  void showImageDailog() {
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (context) {
+        final primaryColor = Theme.of(context).primaryColor;
+        return Dialog(
+          child: Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+            padding:
+                const EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
+            height: 400,
+            width: double.infinity * 0.8,
+            constraints: const BoxConstraints(minHeight: 400),
+            child: LayoutBuilder(
+              builder: (context, parentSize) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Complete New Capture",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: MemoryImage(imageData),
+                              fit: BoxFit.cover)),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const SizedBox(
+                      width: 240,
+                      child: Text(
+                        "Please wait for few minutes after submission for the results",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: greyText),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    StatefulBuilder(
+                      builder: (context, setState) {
+                        return isSubmitingImage
+                            ? SizedBox(
+                                width: double.infinity,
+                                height: 20,
+                                child: LinearProgressIndicator(
+                                  backgroundColor: primaryColor,
+                                ))
+                            : InkWell(
+                                onTap: () async {
+                                  setState(() {
+                                    isSubmitingImage = true;
+                                  });
+                                  await submitImageforAnalysis();
+                                  setState(() {
+                                    isSubmitingImage = false;
+                                  });
+
+                                  if (!mounted) return;
+                                  // closes the dailog.
+                                  context.pop();
+                                },
+                                child: Container(
+                                  height: 45,
+                                  width: double.infinity * 0.9,
+                                  decoration: BoxDecoration(
+                                      color: primaryColor,
+                                      borderRadius: BorderRadius.circular(100)),
+                                  child: const Center(
+                                    child: Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  ///submit the image picked to the ML model.
+  ///
+  ///
+  ///if the there is no internet, it activates the listener that saves the image locally
+  Future<void> submitImageforAnalysis() async {
+    bool result = await InternetConnectionChecker().hasConnection;
+    if (!result) {
+      if (mounted) {
+        errorUpMessage(
+            context, 'No Internet.. We will save your image locally', 'Alert');
+        await Future.delayed(const Duration(seconds: 2));
+      }
+
+      await ref.read(plantsProvider).savePlantLocally(imageData);
+    } else {}
+  }
+
+  ///Does the actuall capturing of the image.
+  Future<void> pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 360.0,
+        maxHeight: 360.0,
+        imageQuality: 100,
+        preferredCameraDevice: CameraDevice.front,
+      );
+
+      file = File(pickedFile!.path);
+      final Uint8List bytes = file!.readAsBytesSync();
+      setState(() {
+        // _imageFile = pickedFile;
+
+        imageData = bytes;
+      });
+    } catch (e) {
+      print("error while picking image is $e");
+      errorUpMessage(context, e.toString(), 'Error Alert');
+    }
   }
 }

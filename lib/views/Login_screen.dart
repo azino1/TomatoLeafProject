@@ -16,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  ///Holds the user phone number inputs.
   TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -24,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final primaryColor = Theme.of(context).primaryColor;
 
     return GestureDetector(
+      //allows the user to close the keyboard.
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         body: SingleChildScrollView(
@@ -36,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: deviceSize.height * 0.1,
                 ),
                 InkWell(
+                  //takes the user to the previous screen
                   onTap: () => context.pop(),
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -92,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: deviceSize.height * 0.03,
                 ),
                 InkWell(
+                  //sends the user to Homescreen where he can make a new capture.
                   onTap: () => context.push(NewCaptureScreen.routeName),
                   child: Container(
                     width: double.infinity,

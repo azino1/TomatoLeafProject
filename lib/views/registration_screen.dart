@@ -7,6 +7,7 @@ import 'package:tomato_leave_virus_mobile/views/Login_screen.dart';
 
 import '../constant.dart';
 
+///Registration Screen
 class RegistrationScreen extends StatefulWidget {
   static const routeName = "/registration";
   const RegistrationScreen({super.key});
@@ -16,14 +17,24 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  /// Holds the firstName enter the user
   TextEditingController _firstNameController = TextEditingController();
+
+  /// Holds the lasttName entered the user
   TextEditingController _lastNameController = TextEditingController();
+
+  /// Holds the email entered by user
   TextEditingController _emailController = TextEditingController();
+
+  ///Holds the phone number enterred by user
   TextEditingController _phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    /// Holds the device size
     final deviceSize = MediaQuery.of(context).size;
+
+    /// Holds the primary theme color of this app
     final primaryColor = Theme.of(context).primaryColor;
 
     return GestureDetector(
@@ -106,6 +117,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   height: deviceSize.height * 0.03,
                 ),
                 InkWell(
+                  //sends the user to the login screen
                   onTap: () => context.push(LoginScreen.routeName),
                   child: Container(
                     width: double.infinity,
@@ -132,6 +144,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  /// An inputbox widget where a user can input his/her details.
   Widget inputBox(
       String label, TextEditingController _controller, String hintText,
       {bool isEmail = false}) {
