@@ -7,6 +7,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
 
 import '../constant.dart';
 import '../models/plant.dart';
@@ -24,7 +25,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   /// Initialize the image picker
   final ImagePicker _picker = ImagePicker();
 
-  // XFile? _imageFile;
+  XFile? _imageFile;
 
   File? file;
 
@@ -177,7 +178,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(plant.PlantName,
+              Text(plant.plantName,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               Row(
                 children: [
@@ -187,8 +188,8 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                         borderRadius: BorderRadius.circular(100),
                         color: const Color(0xffF4CE6B)),
                     child: plant.isPending
-                        ? const Text('Pending')
-                        : const Text('Done'),
+                        ? const Text('Done')
+                        : const Text('Pending'),
                   ),
                   const SizedBox(width: 25),
                   const Icon(Icons.arrow_forward_ios)
@@ -364,8 +365,23 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
         await Future.delayed(const Duration(seconds: 2));
       }
 
-      await ref.read(plantsProvider).savePlantLocally(imageData);
-    } else {}
+      await ref.read(plantsProvider).saveUnScannedPlantLocally(imageData);
+    } else {
+      if (_imageFile != null) {
+        final scanningResult =
+            await ApiServices.predictPlantDisease(_imageFile!.path);
+
+        final int healthStatus =
+            scanningResult.toLowerCase().contains("healthy")
+                ? 0
+                : scanningResult.toLowerCase().contains("virus")
+                    ? 1
+                    : 2;
+        await ref
+            .read(plantsProvider)
+            .saveScannedPlant(scanningResult, healthStatus, imageData);
+      }
+    }
   }
 
   ///Does the actuall capturing of the image.
@@ -382,7 +398,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
       file = File(pickedFile!.path);
       final Uint8List bytes = file!.readAsBytesSync();
       setState(() {
-        // _imageFile = pickedFile;
+        _imageFile = pickedFile;
 
         imageData = bytes;
       });

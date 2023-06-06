@@ -9,7 +9,7 @@ class DBHelper {
     return sql.openDatabase(path.join(dbPath, 'plants.db'),
         onCreate: (db, version) {
       return db.execute(
-          'CREATE TABLE plants_data(id TEXT PRIMARY KEY, image BLOB, date TEXT)');
+          'CREATE TABLE plants_data(id TEXT PRIMARY KEY, image BLOB, date TEXT, virus_name Text, analysis_status INTEGER, health_status INTEGER)');
     }, version: 1);
   }
 
