@@ -25,10 +25,6 @@ class PlantDataProvider extends ChangeNotifier {
   /// After fetching this data as an Array, it is assign a copy to [_plantList] while also notifying all listeners
   Future<void> fetchPlants() async {
     bool result = await InternetConnectionChecker().hasConnection;
-
-    if (result) {
-      //TODO: fetch analyst plants from server
-    }
     final localPlants = await fetchLocalPlants();
 
     _plantList = [...localPlants];
@@ -47,32 +43,70 @@ class PlantDataProvider extends ChangeNotifier {
     return localPlants;
   }
 
-  Future<void> fetchAnalytsPlants() async {}
-
-  ///Listeners to user requst to save plant data locally when there is no internet connectivity.
-  Future<void> savePlantLocally(Uint8List localPlantImage) async {
-    /// Generates a unique with Uuid package
-    final plantId = Uuid().v1();
+  ///save scanned plant data to the local db
+  ///
+  ///analysisStatus 0f 0=> pending, 1=>done
+  ///healthstatus of 0=>Healthy, 1=>Diseased, others=>Unknown
+  Future<void> saveScannedPlant(
+      String virusName, int healthStatus, Uint8List localPlantImage) async {
+    //Generates a unique with Uuid package
+    final plantId = const Uuid().v1();
     final newPlant = Plant(
         id: plantId,
+        healthStatus: healthStatus,
         time: DateTime.now(),
-        PlantName: "Unknown Plant",
-        plantImage: null,
+        virusName: virusName,
+        plantName: (healthStatus == 0 || healthStatus == 1)
+            ? "Tomato Leaf"
+            : "Unknown Leaf",
         localPlantImage: localPlantImage,
         isPending: true);
 
-    ///save plant data to the local db
     await DBHelper.insert('plants_data', {
       'id': newPlant.id,
       'image': newPlant.localPlantImage,
-      'date': newPlant.time.toIso8601String()
+      'date': newPlant.time.toIso8601String(),
+      "virus_name": virusName,
+      "analysis_status": 1,
+      "health_status": healthStatus,
+    });
+
+    _plantList.add(newPlant);
+    notifyListeners();
+  }
+
+  ///Listeners to user requst to save plant data locally when there is no internet connectivity.
+  ///And we can connect to ML server.
+  Future<void> saveUnScannedPlantLocally(Uint8List localPlantImage) async {
+    /// Generates a unique with Uuid package
+    final plantId = const Uuid().v1();
+    final newPlant = Plant(
+        id: plantId,
+        healthStatus: 2,
+        virusName: "Unkown Virus",
+        time: DateTime.now(),
+        plantName: "Unknown Plant",
+        localPlantImage: localPlantImage,
+        isPending: true);
+
+    ///save unscanned plant data to the local db
+    ///
+    ///analysisStatus 0f 0=> pending, 1=>done
+    ///healthstatus of 0=>Healthy, 1=>Diseased, others=>Unknown
+    await DBHelper.insert('plants_data', {
+      'id': newPlant.id,
+      'image': newPlant.localPlantImage,
+      'date': newPlant.time.toIso8601String(),
+      "virusName": "Unknown Virus",
+      "analysisStatus": 0,
+      "healthStatus": 2,
     });
     _plantList.add(newPlant);
     notifyListeners();
   }
 
-  /// Sync all locally saved data to the remote server.
-  Future<void> syncLocalPlantsToServer() async {
+  /// Sync all locally saved data to the remote ML server for analysis.
+  Future<void> syncLocalPlantsForAnalysis() async {
     try {
       await Future.delayed(Duration(seconds: 10));
 
