@@ -1,5 +1,10 @@
 import 'dart:typed_data';
 
+enum Language {
+  english,
+  hausa,
+}
+
 class Plant {
   final String id;
   final DateTime time;

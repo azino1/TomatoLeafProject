@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
+import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 
 import '../constant.dart';
 import '../models/plant.dart';
@@ -175,28 +176,36 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(plant.plantName,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: const Color(0xffF4CE6B)),
-                    child: plant.isPending
-                        ? const Text('Done')
-                        : const Text('Pending'),
-                  ),
-                  const SizedBox(width: 25),
-                  const Icon(Icons.arrow_forward_ios)
-                ],
-              )
-            ],
-          ),
+          Consumer(builder: (context, ref, child) {
+            final isHause = ref.watch(isHausa);
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(plant.plantName,
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: const Color(0xffF4CE6B)),
+                      child: plant.isPending
+                          ? isHause
+                              ? const Text('Yi')
+                              : const Text('Done')
+                          : isHause
+                              ? const Text('jiran')
+                              : const Text('Pending'),
+                    ),
+                    const SizedBox(width: 25),
+                    const Icon(Icons.arrow_forward_ios)
+                  ],
+                )
+              ],
+            );
+          }),
           const SizedBox(height: 5),
           Text(DateFormat.yMd().format(plant.time))
         ],
@@ -216,29 +225,38 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          const Text(
-            'Welcome, Chief Hassen',
-            style: TextStyle(color: Colors.white, fontSize: 18),
-          ),
+          Consumer(builder: (context, ref, child) {
+            final isHause = ref.watch(isHausa);
+            return RichText(
+              text: TextSpan(children: [
+                TextSpan(text: isHause ? 'Welcome' : "Barka da zuwa"),
+                const TextSpan(text: 'Chief Hassen')
+              ], style: const TextStyle(color: Colors.white, fontSize: 18)),
+            );
+          }),
           Align(
             alignment: Alignment.bottomCenter,
             child: DropdownButton(
-                value: "English",
+                value: Language.english,
                 underline: null,
                 dropdownColor: primaryColor,
                 borderRadius: BorderRadius.circular(8),
                 iconSize: 20,
                 items: const [
                   DropdownMenuItem(
-                      value: "English",
+                      value: Language.english,
                       child: Text('English',
                           style: TextStyle(color: Colors.white, fontSize: 12))),
                   DropdownMenuItem(
-                      value: "Hause",
+                      value: Language.hausa,
                       child: Text('Hausa',
                           style: TextStyle(color: Colors.white, fontSize: 12))),
                 ],
-                onChanged: (val) {}),
+                onChanged: (val) {
+                  if (val != null) {
+                    ref.read(isHausa.notifier).changeLanguage(val);
+                  }
+                }),
           )
         ],
       ),
@@ -267,83 +285,98 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
             constraints: const BoxConstraints(minHeight: 400),
             child: LayoutBuilder(
               builder: (context, parentSize) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          "Complete New Capture",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      height: 200,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: MemoryImage(imageData),
-                              fit: BoxFit.cover)),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const SizedBox(
-                      width: 240,
-                      child: Text(
-                        "Please wait for few minutes after submission for the results",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: greyText),
+                return Consumer(builder: (context, ref, child) {
+                  final isHause = ref.watch(isHausa);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: isHause
+                              ? const Text(
+                                  "Cikakkun Sabbin Ɗauka",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )
+                              : const Text(
+                                  "Complete New Capture",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )),
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    StatefulBuilder(
-                      builder: (context, setState) {
-                        return isSubmitingImage
-                            ? SizedBox(
-                                width: double.infinity,
-                                height: 20,
-                                child: LinearProgressIndicator(
-                                  backgroundColor: primaryColor,
-                                ))
-                            : InkWell(
-                                onTap: () async {
-                                  setState(() {
-                                    isSubmitingImage = true;
-                                  });
-                                  await submitImageforAnalysis();
-                                  setState(() {
-                                    isSubmitingImage = false;
-                                  });
+                      Container(
+                        height: 200,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: MemoryImage(imageData),
+                                fit: BoxFit.cover)),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        width: 240,
+                        child: isHause
+                            ? const Text(
+                                "Da fatan za a jira 'yan mintuna kaɗan bayan ƙaddamar da sakamakon",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: greyText),
+                              )
+                            : const Text(
+                                "Please wait for few minutes after submission for the results",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: greyText),
+                              ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      StatefulBuilder(
+                        builder: (context, setState) {
+                          return isSubmitingImage
+                              ? SizedBox(
+                                  width: double.infinity,
+                                  height: 20,
+                                  child: LinearProgressIndicator(
+                                    backgroundColor: primaryColor,
+                                  ))
+                              : InkWell(
+                                  onTap: () async {
+                                    setState(() {
+                                      isSubmitingImage = true;
+                                    });
+                                    await submitImageforAnalysis();
+                                    setState(() {
+                                      isSubmitingImage = false;
+                                    });
 
-                                  if (!mounted) return;
-                                  // closes the dailog.
-                                  context.pop();
-                                },
-                                child: Container(
-                                  height: 45,
-                                  width: double.infinity * 0.9,
-                                  decoration: BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius: BorderRadius.circular(100)),
-                                  child: const Center(
-                                    child: Text(
-                                      "Submit",
-                                      style: TextStyle(
-                                        color: Colors.white,
+                                    if (!mounted) return;
+                                    // closes the dailog.
+                                    context.pop();
+                                  },
+                                  child: Container(
+                                    height: 45,
+                                    width: double.infinity * 0.9,
+                                    decoration: BoxDecoration(
+                                        color: primaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(100)),
+                                    child: Center(
+                                      child: Text(
+                                        isHause ? "Sallama" : "Submit",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                      },
-                    ),
-                  ],
-                );
+                                );
+                        },
+                      ),
+                    ],
+                  );
+                });
               },
             ),
           ),
@@ -358,10 +391,14 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   ///if the there is no internet, it activates the listener that saves the image locally
   Future<void> submitImageforAnalysis() async {
     bool result = await InternetConnectionChecker().hasConnection;
+    final isHause = ref.read(isHausa);
     if (!result) {
       if (mounted) {
-        errorUpMessage(
-            context, 'No Internet.. We will save your image locally', 'Alert');
+        isHause
+            ? errorUpMessage(context,
+                'Babu Intanet. Za mu adana hotonku a gida', 'Fadakarwa')
+            : errorUpMessage(context,
+                'No Internet.. We will save your image locally', 'Alert');
         await Future.delayed(const Duration(seconds: 2));
       }
 
