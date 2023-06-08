@@ -38,8 +38,15 @@ class DBHelper {
   }
 
   ///deletes all item from the local database.
-  static Future<void> deleteAllData(String table, String id) async {
+  static Future<void> deleteAllData(String table) async {
     final db = await DBHelper.database();
     db.delete(table);
+  }
+
+  ///update an item in the local database.
+  static Future<void> updateData(
+      String table, Map<String, dynamic> data, String id) async {
+    final db = await DBHelper.database();
+    db.update(table, data, where: 'id = ?', whereArgs: [id]);
   }
 }

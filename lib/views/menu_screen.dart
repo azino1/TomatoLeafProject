@@ -13,6 +13,7 @@ import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 import '../constant.dart';
 import '../models/plant.dart';
 import '../providers/plant_data_provider.dart';
+import 'virus_detail_page.dart';
 
 class NewCaptureScreen extends ConsumerStatefulWidget {
   static const routeName = "/new-captured";
@@ -29,6 +30,8 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   XFile? _imageFile;
 
   File? file;
+
+  Language _selectedLanguage = Language.english;
 
   //would later hold the imageData after being capture by a user
   late Uint8List imageData;
@@ -80,16 +83,19 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
         children: [
           customAppBar(),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Previous Results',
-                style: TextStyle(color: primaryColor, fontSize: 18),
+          Consumer(builder: (context, ref, child) {
+            final isHause = ref.watch(isHausa);
+            return Padding(
+              padding: const EdgeInsets.only(left: 15.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  isHause ? "Sakamako na baya" : 'Previous Results',
+                  style: TextStyle(color: primaryColor, fontSize: 18),
+                ),
               ),
-            ),
-          ),
+            );
+          }),
           FutureBuilder(
               future: futureHolder,
               builder: (context, snapshot) {
@@ -134,81 +140,131 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                 );
               }),
           const SizedBox(height: 20),
-          Text('Click here to take a photo of the plant'),
-          const SizedBox(
-            height: 10,
-          ),
-          InkWell(
-            onTap: captureNewImage,
-            child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20),
-              width: double.infinity,
-              height: 50,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: primaryColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.photo_camera_outlined,
-                    size: 24,
-                    color: Colors.white,
+          Consumer(builder: (context, ref, child) {
+            final isHause = ref.watch(isHausa);
+            return Column(
+              children: [
+                Text(isHause
+                    ? "Danna nan don ɗaukar hoto na shuka"
+                    : 'Click here to take a photo of the plant'),
+                const SizedBox(
+                  height: 10,
+                ),
+                InkWell(
+                  onTap: captureNewImage,
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 20, right: 20),
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: primaryColor),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.photo_camera_outlined,
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 20),
+                        Text(
+                          isHause ? "Sabon kamawa" : "New Capture",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 20),
-                  Text(
-                    "New Capture",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 20),
+              ],
+            );
+          }),
         ],
       ),
     );
   }
 
   Widget dataCard(Plant plant) {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Consumer(builder: (context, ref, child) {
-            final isHause = ref.watch(isHausa);
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(plant.plantName,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: const Color(0xffF4CE6B)),
-                      child: plant.isPending
-                          ? isHause
-                              ? const Text('Yi')
-                              : const Text('Done')
-                          : isHause
-                              ? const Text('jiran')
-                              : const Text('Pending'),
-                    ),
-                    const SizedBox(width: 25),
-                    const Icon(Icons.arrow_forward_ios)
-                  ],
-                )
-              ],
-            );
-          }),
-          const SizedBox(height: 5),
-          Text(DateFormat.yMd().format(plant.time))
-        ],
+    final isHause = ref.watch(isHausa);
+    return InkWell(
+      onTap: () async {
+        if (plant.plantName == "Unknown plant") {
+          isHause
+              ? showUpMessage(
+                  context,
+                  "Shuka yana dubawa, da fatan za a jira. Ana dubawa zai iya ɗaukar har zuwa mintuna 5",
+                  "Sanarwa!")
+              : showUpMessage(
+                  context,
+                  "Plant is scanning, please wait. Scanning could take up to 5 minutes",
+                  "Notice!");
+          await sendLocalImageforAnalysis(plant);
+          return;
+        }
+        if (plant.plantName != "Tomato Leaf with Virus") {
+          isHause
+              ? showUpMessage(
+                  context,
+                  "Ganyen yana da lafiya ko kuma wani abu ne da ba a sani ba",
+                  'Fadakarwa')
+              : showUpMessage(context,
+                  "The leaf is healthy or it is an unknown object", 'Alert');
+          return;
+        }
+
+        context.push(VirusDetailPage.routeName, extra: plant);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Consumer(builder: (context, ref, child) {
+              final isHause = ref.watch(isHausa);
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 250,
+                    child: Text(
+                        isHause
+                            ? plant.plantName == "Healthy Leaf / Unknown plant"
+                                ? "Lafiyayyan Leaf / Ba a sani ba shuka"
+                                : plant.plantName == "Tomato Leaf with Virus"
+                                    ? "Ganyen Tumatir mai Virus"
+                                    : "Ba a sani ba shuka"
+                            : plant.plantName,
+                        maxLines: 3,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600)),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: const Color(0xffF4CE6B)),
+                        child: plant.isPending
+                            ? isHause
+                                ? const Text('Yi')
+                                : const Text('Done')
+                            : isHause
+                                ? const Text('jiran')
+                                : const Text('Pending'),
+                      ),
+                      const SizedBox(width: 25),
+                      const Icon(Icons.arrow_forward_ios)
+                    ],
+                  )
+                ],
+              );
+            }),
+            const SizedBox(height: 5),
+            Text(DateFormat.yMd().format(plant.time))
+          ],
+        ),
       ),
     );
   }
@@ -229,7 +285,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
             final isHause = ref.watch(isHausa);
             return RichText(
               text: TextSpan(children: [
-                TextSpan(text: isHause ? 'Welcome' : "Barka da zuwa"),
+                TextSpan(text: !isHause ? 'Welcome, ' : "Barka da zuwa, "),
                 const TextSpan(text: 'Chief Hassen')
               ], style: const TextStyle(color: Colors.white, fontSize: 18)),
             );
@@ -237,7 +293,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: DropdownButton(
-                value: Language.english,
+                value: _selectedLanguage,
                 underline: null,
                 dropdownColor: primaryColor,
                 borderRadius: BorderRadius.circular(8),
@@ -254,6 +310,9 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                 ],
                 onChanged: (val) {
                   if (val != null) {
+                    setState(() {
+                      _selectedLanguage = val;
+                    });
                     ref.read(isHausa.notifier).changeLanguage(val);
                   }
                 }),
@@ -385,6 +444,35 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     );
   }
 
+  ///resend the locally saved image to the ML model.
+  Future<void> sendLocalImageforAnalysis(Plant plant) async {
+    bool result = await InternetConnectionChecker().hasConnection;
+    final isHause = ref.read(isHausa);
+    if (!result) {
+      if (mounted) {
+        isHause
+            ? errorUpMessage(context,
+                'Babu Intanet. Za mu adana hotonku a gida', 'Fadakarwa')
+            : errorUpMessage(context,
+                'No Internet.. We will save your image locally', 'Alert');
+        await Future.delayed(const Duration(seconds: 2));
+      }
+    } else {
+      if (plant.localPlantImage == null) return;
+      final filePath = File.fromRawPath(plant.localPlantImage!).path;
+      final scanningResult = await ApiServices.predictPlantDisease(filePath);
+
+      final int healthStatus = scanningResult.toLowerCase().contains("healthy")
+          ? 0
+          : scanningResult.toLowerCase().contains("virus")
+              ? 1
+              : 2;
+      await ref
+          .read(plantsProvider)
+          .updateAnalysedLocalPlant(plant.id, healthStatus, scanningResult);
+    }
+  }
+
   ///submit the image picked to the ML model.
   ///
   ///
@@ -434,6 +522,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
 
       file = File(pickedFile!.path);
       final Uint8List bytes = file!.readAsBytesSync();
+
       setState(() {
         _imageFile = pickedFile;
 

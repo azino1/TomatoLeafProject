@@ -17,3 +17,15 @@ void errorUpMessage(BuildContext context, String text, String title) {
     flushbarPosition: FlushbarPosition.TOP,
   ).show(context);
 }
+
+void showUpMessage(BuildContext context, String text, String title) {
+  final primaryColor = Theme.of(context).primaryColor;
+  Flushbar(
+    title: title,
+    message: text,
+    duration: const Duration(seconds: 2),
+    messageColor: primaryColor,
+    backgroundColor: Colors.white,
+    flushbarPosition: FlushbarPosition.TOP,
+  ).show(context);
+}

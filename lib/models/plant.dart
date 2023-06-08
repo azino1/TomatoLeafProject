@@ -10,9 +10,9 @@ class Plant {
   final DateTime time;
   bool isPending;
   final String plantName;
-  final int healthStatus;
+  int healthStatus;
   final Uint8List? localPlantImage;
-  final String virusName;
+  String virusName;
 
   Plant({
     required this.id,
@@ -31,7 +31,11 @@ class Plant {
         time: DateTime.parse(data['date']),
         virusName: data['virus_name'],
         healthStatus: data['health_status'],
-        plantName: data['health_status'] == 0 ? "Tomato Leaf" : "Unknow plant",
+        plantName: data['health_status'] == 0
+            ? "Healthy Leaf / Unknown plant"
+            : data['analysis_status'] == 1
+                ? "Tomato Leaf with Virus"
+                : "Unknown plant",
         localPlantImage: data['image'],
         isPending: data['analysis_status'] == 1 ? true : false);
   }
