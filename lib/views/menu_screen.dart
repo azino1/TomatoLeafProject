@@ -7,6 +7,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tomato_leave_virus_mobile/data.dart';
 import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 
@@ -189,7 +190,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     final isHause = ref.watch(isHausa);
     return InkWell(
       onTap: () async {
-        if (plant.plantName == "Unknown plant") {
+        if (plant.plantName == "Unknown plant" && plant.isPending) {
           isHause
               ? showUpMessage(
                   context,
@@ -213,7 +214,12 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
           return;
         }
 
-        context.push(VirusDetailPage.routeName, extra: plant);
+        final index = englishInfo.indexWhere((element) => element['virusName']
+            .toLowerCase()
+            .contains(plant.virusName.toLowerCase()));
+        if (index != -1) {
+          context.push(VirusDetailPage.routeName, extra: plant);
+        }
       },
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -245,8 +251,10 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(100),
-                            color: const Color(0xffF4CE6B)),
-                        child: plant.isPending
+                            color: plant.isPending
+                                ? const Color(0xffF4CE6B)
+                                : Colors.greenAccent),
+                        child: !plant.isPending
                             ? isHause
                                 ? const Text('Yi')
                                 : const Text('Done')
@@ -459,8 +467,16 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
       }
     } else {
       if (plant.localPlantImage == null) return;
-      final filePath = File.fromRawPath(plant.localPlantImage!).path;
-      final scanningResult = await ApiServices.predictPlantDisease(filePath);
+      // Get the temporary directory
+      Directory tempDir = Directory.systemTemp;
+
+      // Create a File object in the temporary directory
+      File file = File('${tempDir.path}/file.jpeg');
+      final newFile = await file.writeAsBytes(plant.localPlantImage!);
+
+      // final filePath = File.fromRawPath(plant.localPlantImage!).path;
+      final scanningResult =
+          await ApiServices.predictPlantDisease(newFile.path);
 
       final int healthStatus = scanningResult.toLowerCase().contains("healthy")
           ? 0

@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tomato_leave_virus_mobile/data.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 
+import '../constant.dart';
 import '../models/plant.dart';
 
 class VirusDetailPage extends ConsumerStatefulWidget {
@@ -30,11 +31,14 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
       dataFile = englishInfo;
     }
 
-    final index = dataFile.indexWhere(
-        (element) => element['virusName'].contains(widget.plant.virusName));
+    final index = dataFile.indexWhere((element) => element['virusName']
+        .toLowerCase()
+        .contains(widget.plant.virusName.toLowerCase()));
 
     if (index != -1) {
-      virusDesJson = dataFile[index];
+      setState(() {
+        virusDesJson = dataFile[index];
+      });
     }
     super.initState();
   }
@@ -92,39 +96,59 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
               const SizedBox(
                 height: 15,
               ),
-              Text(isHause ? "shuka Sunan" : "plant Name"),
+              Text(
+                isHause ? "shuka Sunan" : "plant Name",
+                style: const TextStyle(color: hintTextColor, fontSize: 16),
+              ),
               const SizedBox(
                 height: 5,
               ),
-              Text(isHause ? "Tumatir" : widget.plant.plantName),
+              Text(
+                isHause ? "Tumatir" : widget.plant.plantName,
+                style: const TextStyle(fontSize: 19),
+              ),
               const SizedBox(
                 height: 15,
               ),
-              Text(isHause ? "Cutar da aka gano" : "Detected Disease:"),
+              Text(
+                isHause ? "Cutar da aka gano" : "Detected Disease:",
+                style: const TextStyle(color: hintTextColor, fontSize: 16),
+              ),
               const SizedBox(height: 5),
-              Text(virusDesJson['virusName']),
+              Text(
+                virusDesJson['virusName'],
+                style: const TextStyle(fontSize: 19),
+              ),
               const SizedBox(height: 15),
-              Text(isHause ? "TAV watsawa" : "TAV transmission:"),
+              Text(
+                isHause ? "TAV watsawa" : "TAV Transmission:",
+                style: const TextStyle(color: hintTextColor, fontSize: 16),
+              ),
               const SizedBox(
                 height: 5,
               ),
-              Text(virusDesJson['TAVtransmission']),
-              const SizedBox(
-                height: 15,
+              Text(
+                virusDesJson['TAVtransmission'],
+                style: const TextStyle(fontSize: 19),
               ),
-              Text(isHause ? "Gudanar da TAV" : "TAV Management"),
               const SizedBox(
-                height: 5,
+                height: 25,
               ),
-              ListView.separated(
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Text(index.toString()),
-                      title: Text(virusDesJson["TAVmanagement"][index]),
-                    );
-                  },
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemCount: virusDesJson["TAVmanagement"].length),
+              Text(
+                isHause ? "Gudanar da TAV" : "TAV Management",
+                style: const TextStyle(color: hintTextColor, fontSize: 16),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: Text((index + 1).toString()),
+                        title: Text(virusDesJson["TAVmanagement"][index]),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemCount: virusDesJson["TAVmanagement"].length),
+              ),
             ],
           );
         }),

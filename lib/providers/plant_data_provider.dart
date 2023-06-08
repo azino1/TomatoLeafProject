@@ -17,7 +17,7 @@ class PlantDataProvider extends ChangeNotifier {
   List<Plant> _plantList = [];
 
   /// A plants getter that get Array of item from _plantList
-  List<Plant> get plantList => _plantList;
+  List<Plant> get plantList => _plantList.reversed.toList();
 
   /// Listens to user request to fetch plants data both locally and from server.
   ///
@@ -51,6 +51,11 @@ class PlantDataProvider extends ChangeNotifier {
       _plantList[index].healthStatus = healthStatus;
       _plantList[index].virusName = virusName;
       _plantList[index].isPending = false;
+      _plantList[index].plantName = healthStatus == 0
+          ? "Healthy Leaf / Unknown plant"
+          : healthStatus == 1
+              ? "Tomato Leaf with Virus"
+              : "Unknown plant";
     }
 
     await DBHelper.updateData(
@@ -80,7 +85,7 @@ class PlantDataProvider extends ChangeNotifier {
         virusName: virusName,
         plantName: healthStatus == 0
             ? "Healthy Leaf / Unknown plant"
-            : healthStatus == 1
+            : healthStatus <= 1
                 ? "Tomato Leaf with Virus"
                 : "Unknown Plant",
         localPlantImage: localPlantImage,
@@ -91,7 +96,7 @@ class PlantDataProvider extends ChangeNotifier {
       'image': newPlant.localPlantImage,
       'date': newPlant.time.toIso8601String(),
       "virus_name": virusName,
-      "analysis_status": 0,
+      "analysis_status": 1,
       "health_status": healthStatus,
     });
 
@@ -122,7 +127,7 @@ class PlantDataProvider extends ChangeNotifier {
       'image': newPlant.localPlantImage,
       'date': newPlant.time.toIso8601String(),
       "virus_name": "Unknown Virus",
-      "analysis_status": 1,
+      "analysis_status": 0,
       "health_status": 2,
     });
     _plantList.add(newPlant);

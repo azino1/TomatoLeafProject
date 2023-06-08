@@ -9,7 +9,7 @@ class Plant {
   final String id;
   final DateTime time;
   bool isPending;
-  final String plantName;
+  String plantName;
   int healthStatus;
   final Uint8List? localPlantImage;
   String virusName;
@@ -25,6 +25,9 @@ class Plant {
   });
 
   ///Collects data to build a plant object.
+  ///
+  /// analysisStatus 0f 0=> pending, 1=>done
+  /// healthstatus of 0=>Healthy, 1=>Diseased, others=>Unknown
   factory Plant.fromLocalMemory(Map<String, dynamic> data) {
     return Plant(
         id: data['id'],
@@ -37,6 +40,6 @@ class Plant {
                 ? "Tomato Leaf with Virus"
                 : "Unknown plant",
         localPlantImage: data['image'],
-        isPending: data['analysis_status'] == 1 ? true : false);
+        isPending: data['analysis_status'] == 0 ? true : false);
   }
 }
