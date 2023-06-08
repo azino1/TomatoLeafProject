@@ -117,12 +117,15 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                     ///
                     /// It could be empty if there is no plant found.
                     final plants = ref.watch(plantsProvider).plantList;
+                    final isHause = ref.watch(isHausa);
 
                     return plants.isEmpty
                         ? SizedBox(
                             height: deviceSize.height * 0.52,
-                            child: const Center(
-                                child: Text("No Plant capture yet.. ")),
+                            child: Center(
+                                child: Text(isHause
+                                    ? "Har yanzu ba a kama Shuka ba"
+                                    : "No Plant capture yet.. ")),
                           )
                         : Expanded(
                             child: ListView.separated(
@@ -232,7 +235,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
-                    width: 250,
+                    width: 220,
                     child: Text(
                         isHause
                             ? plant.plantName == "Healthy Leaf / Unknown plant"
@@ -262,7 +265,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                                 ? const Text('jiran')
                                 : const Text('Pending'),
                       ),
-                      const SizedBox(width: 25),
+                      const SizedBox(width: 15),
                       const Icon(Icons.arrow_forward_ios)
                     ],
                   )
@@ -347,7 +350,6 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             padding:
                 const EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
-            height: 400,
             width: double.infinity * 0.8,
             constraints: const BoxConstraints(minHeight: 400),
             child: LayoutBuilder(
@@ -356,6 +358,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                   final isHause = ref.watch(isHausa);
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Align(
                           alignment: Alignment.topLeft,
