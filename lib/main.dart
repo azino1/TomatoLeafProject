@@ -4,7 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tomato_leave_virus_mobile/views/Login_screen.dart';
 import 'package:tomato_leave_virus_mobile/views/registration_screen.dart';
 
+import 'models/plant.dart';
 import 'views/menu_screen.dart';
+import 'views/virus_detail_page.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -47,6 +49,14 @@ class MyApp extends StatelessWidget {
         path: NewCaptureScreen.routeName,
         builder: (context, state) => const NewCaptureScreen(),
       ),
+      GoRoute(
+          path: VirusDetailPage.routeName,
+          builder: (context, state) {
+            final plant = state.extra as Plant;
+            return VirusDetailPage(
+              plant: plant,
+            );
+          }),
     ],
   );
 }

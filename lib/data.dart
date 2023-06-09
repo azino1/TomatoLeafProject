@@ -1,4 +1,4 @@
-const hausaInfo = [
+const List<Map<String, dynamic>> hausaInfo = [
   {
     "id": 1,
     "virusName": "Cutar Tomato Aspermy Virus (TAV)",
@@ -76,7 +76,7 @@ const hausaInfo = [
   },
 ];
 
-const englishInfo = [
+const List<Map<String, dynamic>> englishInfo = [
   {
     "id": 1,
     "virusName": "Tomato Aspermy Virus (TAV)",

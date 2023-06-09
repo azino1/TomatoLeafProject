@@ -17,7 +17,7 @@ class PlantDataProvider extends ChangeNotifier {
   List<Plant> _plantList = [];
 
   /// A plants getter that get Array of item from _plantList
-  List<Plant> get plantList => _plantList;
+  List<Plant> get plantList => _plantList.reversed.toList();
 
   /// Listens to user request to fetch plants data both locally and from server.
   ///
@@ -43,6 +43,33 @@ class PlantDataProvider extends ChangeNotifier {
     return localPlants;
   }
 
+  Future<void> updateAnalysedLocalPlant(
+      String plantId, int healthStatus, String virusName) async {
+    final index = _plantList.indexWhere((element) => element.id == plantId);
+
+    if (index != -1) {
+      _plantList[index].healthStatus = healthStatus;
+      _plantList[index].virusName = virusName;
+      _plantList[index].isPending = false;
+      _plantList[index].plantName = healthStatus == 0
+          ? "Healthy Leaf / Unknown plant"
+          : healthStatus == 1
+              ? "Tomato Leaf with Virus"
+              : "Unknown plant";
+    }
+
+    await DBHelper.updateData(
+        'plants_data',
+        {
+          "virus_name": virusName,
+          "analysis_status": 1,
+          "health_status": healthStatus,
+        },
+        plantId);
+
+    notifyListeners();
+  }
+
   ///save scanned plant data to the local db
   ///
   ///analysisStatus 0f 0=> pending, 1=>done
@@ -56,11 +83,13 @@ class PlantDataProvider extends ChangeNotifier {
         healthStatus: healthStatus,
         time: DateTime.now(),
         virusName: virusName,
-        plantName: (healthStatus == 0 || healthStatus == 1)
-            ? "Tomato Leaf"
-            : "Unknown Leaf",
+        plantName: healthStatus == 0
+            ? "Healthy Leaf / Unknown plant"
+            : healthStatus <= 1
+                ? "Tomato Leaf with Virus"
+                : "Unknown Plant",
         localPlantImage: localPlantImage,
-        isPending: true);
+        isPending: false);
 
     await DBHelper.insert('plants_data', {
       'id': newPlant.id,
@@ -97,9 +126,9 @@ class PlantDataProvider extends ChangeNotifier {
       'id': newPlant.id,
       'image': newPlant.localPlantImage,
       'date': newPlant.time.toIso8601String(),
-      "virusName": "Unknown Virus",
-      "analysisStatus": 0,
-      "healthStatus": 2,
+      "virus_name": "Unknown Virus",
+      "analysis_status": 0,
+      "health_status": 2,
     });
     _plantList.add(newPlant);
     notifyListeners();
