@@ -52,94 +52,96 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
         padding: const EdgeInsets.all(20),
         child: Consumer(builder: (context, ref, child) {
           final isHause = ref.watch(isHausa);
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: deviceSize.height * 0.07,
-              ),
-              InkWell(
-                //takes the user to the previous screen
-                onTap: () => context.pop(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color.fromRGBO(241, 245, 249, 1)),
-                  child: Icon(
-                    Icons.close,
-                    color: primaryColor,
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: deviceSize.height * 0.07,
+                ),
+                InkWell(
+                  //takes the user to the previous screen
+                  onTap: () => context.pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color.fromRGBO(241, 245, 249, 1)),
+                    child: Icon(
+                      Icons.close,
+                      color: primaryColor,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Text(
-                isHause
-                    ? "Sakamakon Gano Cututtuka"
-                    : "Diseases Detection Result",
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Container(
-                height: 88,
-                width: 132,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: MemoryImage(widget.plant.localPlantImage!),
-                        fit: BoxFit.cover)),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Text(
-                isHause ? "shuka Sunan" : "plant Name",
-                style: const TextStyle(color: hintTextColor, fontSize: 16),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              Text(
-                isHause ? "Tumatir" : widget.plant.plantName,
-                style: const TextStyle(fontSize: 19),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Text(
-                isHause ? "Cutar da aka gano" : "Detected Disease:",
-                style: const TextStyle(color: hintTextColor, fontSize: 16),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                virusDesJson['virusName'],
-                style: const TextStyle(fontSize: 19),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                isHause ? "TAV watsawa" : "TAV Transmission:",
-                style: const TextStyle(color: hintTextColor, fontSize: 16),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              Text(
-                virusDesJson['TAVtransmission'],
-                style: const TextStyle(fontSize: 19),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Text(
-                isHause ? "Gudanar da TAV" : "TAV Management",
-                style: const TextStyle(color: hintTextColor, fontSize: 16),
-              ),
-              Expanded(
-                child: ListView.separated(
+                const SizedBox(
+                  height: 30,
+                ),
+                Text(
+                  isHause
+                      ? "Sakamakon Gano Cututtuka"
+                      : "Diseases Detection Result",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 24),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                Container(
+                  height: 88,
+                  width: 132,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: MemoryImage(widget.plant.localPlantImage!),
+                          fit: BoxFit.cover)),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  isHause ? "shuka Sunan" : "plant Name",
+                  style: const TextStyle(color: hintTextColor, fontSize: 16),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  isHause ? "Tumatir" : widget.plant.plantName,
+                  style: const TextStyle(fontSize: 19),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  isHause ? "Cutar da aka gano" : "Detected Disease:",
+                  style: const TextStyle(color: hintTextColor, fontSize: 16),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  virusDesJson['virusName'],
+                  style: const TextStyle(fontSize: 19),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  isHause ? "TAV watsawa" : "TAV Transmission:",
+                  style: const TextStyle(color: hintTextColor, fontSize: 16),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  virusDesJson['TAVtransmission'],
+                  style: const TextStyle(fontSize: 19),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                Text(
+                  isHause ? "Gudanar da TAV" : "TAV Management",
+                  style: const TextStyle(color: hintTextColor, fontSize: 16),
+                ),
+                ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
                     itemBuilder: (context, index) {
                       return ListTile(
                         leading: Text((index + 1).toString()),
@@ -148,8 +150,8 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                     },
                     separatorBuilder: (context, index) => const Divider(),
                     itemCount: virusDesJson["TAVmanagement"].length),
-              ),
-            ],
+              ],
+            ),
           );
         }),
       ),

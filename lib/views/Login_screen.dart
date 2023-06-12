@@ -2,22 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:tomato_leave_virus_mobile/helpers/firebase_service.dart';
+import 'package:tomato_leave_virus_mobile/providers/user_provider.dart';
 import 'package:tomato_leave_virus_mobile/views/menu_screen.dart';
+import 'package:tomato_leave_virus_mobile/views/registration_screen.dart';
 
 import '../constant.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   static const routeName = "/login";
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   ///Holds the user phone number inputs.
   TextEditingController _phoneController = TextEditingController();
+
+  bool isLogin = false;
+
+  void logInUser() async {
+    if (_phoneController.text.isEmpty) {
+      errorUpMessage(context, "please login with your phone number", 'Error');
+      return;
+    }
+
+    if (_phoneController.text.length != 11) {
+      errorUpMessage(context, "phone number is invalid", 'Error');
+      return;
+    }
+
+    setState(() {
+      isLogin = true;
+    });
+
+    try {
+      final userData =
+          await FirebaseServices().loginUser(_phoneController.text);
+      ref.read(userProvider).buildUser(userData);
+      if (!mounted) return;
+      context.go(NewCaptureScreen.routeName);
+    } catch (e) {
+      print(e);
+      errorUpMessage(context, e.toString(), "Error");
+    }
+
+    setState(() {
+      isLogin = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +74,35 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: deviceSize.height * 0.1,
                 ),
-                InkWell(
-                  //takes the user to the previous screen
-                  onTap: () => context.pop(),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(241, 245, 249, 1)),
-                    child: Icon(
-                      Icons.close,
-                      color: primaryColor,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      //takes the user to the previous screen
+                      onTap: () => context.pop(),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color.fromRGBO(241, 245, 249, 1)),
+                        child: Icon(
+                          Icons.close,
+                          color: primaryColor,
+                        ),
+                      ),
                     ),
-                  ),
+                    TextButton(
+                        onPressed: () {
+                          context.go(NewCaptureScreen.routeName);
+                        },
+                        child: Text(
+                          "SKIP",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: primaryColor,
+                              fontFamily: "LeagueSpartan"),
+                        ))
+                  ],
                 ),
                 const SizedBox(
                   height: 30,
@@ -94,23 +147,57 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: deviceSize.height * 0.03,
                 ),
-                InkWell(
-                  //sends the user to Homescreen where he can make a new capture.
-                  onTap: () => context.push(NewCaptureScreen.routeName),
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: primaryColor),
-                    child: const Center(
-                      child: Text(
-                        'Login',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
+                isLogin
+                    ? Center(
+                        child: SizedBox(
+                          height: 50,
+                          width: 50,
+                          child: CircularProgressIndicator.adaptive(
+                            backgroundColor: primaryColor,
+                          ),
+                        ),
+                      )
+                    : InkWell(
+                        //sends the user to Homescreen where he can make a new capture.
+                        onTap: logInUser,
+                        child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: primaryColor),
+                          child: const Center(
+                            child: Text(
+                              'Login',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Center(
+                  child: InkWell(
+                    onTap: () => context.push(RegistrationScreen.routeName),
+                    child: RichText(
+                        text: TextSpan(children: [
+                      const TextSpan(
+                          text: "I don’t have an account? ",
+                          style: TextStyle(color: greyText, fontSize: 12)),
+                      TextSpan(
+                          text: "Register",
+                          style: TextStyle(
+                              color: primaryColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold)),
+                    ])),
                   ),
-                )
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),

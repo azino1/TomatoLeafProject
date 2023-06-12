@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "612655489633",
+    "project_id": "tomato-virus-detector",
+    "storage_bucket": "tomato-virus-detector.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612655489633:android:66a4a54ffb7bb91a388020",
+        "android_client_info": {
+          "package_name": "com.example.tomato_leave_virus_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612655489633-soba9mnn4kp7prr9jqv1qc8turaigema.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5WIsdjFFGSirGBTjVALOEzFkWpwFxGgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612655489633-soba9mnn4kp7prr9jqv1qc8turaigema.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
