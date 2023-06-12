@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:tomato_leave_virus_mobile/data.dart';
 import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
+import 'package:tomato_leave_virus_mobile/providers/user_provider.dart';
 
 import '../constant.dart';
 import '../models/plant.dart';
@@ -284,53 +285,61 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   Widget customAppBar() {
     final primaryColor = Theme.of(context).primaryColor;
     final sizeDevice = MediaQuery.of(context).size;
-    return Container(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-      height: sizeDevice.height * 0.22,
-      decoration: BoxDecoration(color: primaryColor),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Consumer(builder: (context, ref, child) {
-            final isHause = ref.watch(isHausa);
-            return RichText(
-              text: TextSpan(children: [
-                TextSpan(text: !isHause ? 'Welcome, ' : "Barka da zuwa, "),
-                const TextSpan(text: 'Chief Hassen')
-              ], style: const TextStyle(color: Colors.white, fontSize: 18)),
-            );
-          }),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: DropdownButton(
-                value: _selectedLanguage,
-                underline: null,
-                dropdownColor: primaryColor,
-                borderRadius: BorderRadius.circular(8),
-                iconSize: 20,
-                items: const [
-                  DropdownMenuItem(
-                      value: Language.english,
-                      child: Text('English',
-                          style: TextStyle(color: Colors.white, fontSize: 12))),
-                  DropdownMenuItem(
-                      value: Language.hausa,
-                      child: Text('Hausa',
-                          style: TextStyle(color: Colors.white, fontSize: 12))),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _selectedLanguage = val;
-                    });
-                    ref.read(isHausa.notifier).changeLanguage(val);
-                  }
-                }),
-          )
-        ],
-      ),
-    );
+    return Consumer(builder: (context, ref, child) {
+      final user = ref.read(userProvider).mainUser;
+      return Container(
+        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+        height: sizeDevice.height * 0.22,
+        decoration: BoxDecoration(color: primaryColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Consumer(builder: (context, ref, child) {
+              final isHause = ref.watch(isHausa);
+              return RichText(
+                text: TextSpan(children: [
+                  TextSpan(text: !isHause ? 'Welcome, ' : "Barka da zuwa, "),
+                  TextSpan(
+                      text: user != null
+                          ? "${user.firstName} ${user.lastName}"
+                          : 'Anonymous User')
+                ], style: const TextStyle(color: Colors.white, fontSize: 18)),
+              );
+            }),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: DropdownButton(
+                  value: _selectedLanguage,
+                  underline: null,
+                  dropdownColor: primaryColor,
+                  borderRadius: BorderRadius.circular(8),
+                  iconSize: 20,
+                  items: const [
+                    DropdownMenuItem(
+                        value: Language.english,
+                        child: Text('English',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 12))),
+                    DropdownMenuItem(
+                        value: Language.hausa,
+                        child: Text('Hausa',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 12))),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _selectedLanguage = val;
+                      });
+                      ref.read(isHausa.notifier).changeLanguage(val);
+                    }
+                  }),
+            )
+          ],
+        ),
+      );
+    });
   }
 
   ///causes the camera to open for image capturing, thereafter activates the dialog box that displays the image picked.

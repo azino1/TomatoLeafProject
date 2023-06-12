@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>612655489633-cjf11fkma9te4a5a0fudmum29pqbcccc.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.612655489633-cjf11fkma9te4a5a0fudmum29pqbcccc</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCKW4lPHfzrl2QrHQEshiAOXOGZ8_otaYs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>612655489633</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.tomatoLeaveVirusMobile</string>
+	<key>PROJECT_ID</key>
+	<string>tomato-virus-detector</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tomato-virus-detector.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:612655489633:ios:723b59d0bf6b8ce3388020</string>
+</dict>
+</plist>

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 import 'package:tomato_leave_virus_mobile/views/Login_screen.dart';
 import 'package:tomato_leave_virus_mobile/views/registration_screen.dart';
 
@@ -8,7 +11,11 @@ import 'models/plant.dart';
 import 'views/menu_screen.dart';
 import 'views/virus_detail_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -35,7 +42,7 @@ class MyApp extends StatelessWidget {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const RegistrationScreen(),
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: RegistrationScreen.routeName,
