@@ -112,7 +112,7 @@ class PlantDataProvider extends ChangeNotifier {
     final newPlant = Plant(
         id: plantId,
         healthStatus: 2,
-        virusName: "Unkown Virus",
+        virusName: "Unkown Plant & Virus",
         time: DateTime.now(),
         plantName: "Unknown Plant",
         localPlantImage: localPlantImage,

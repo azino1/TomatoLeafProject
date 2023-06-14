@@ -37,7 +37,7 @@ class Plant {
         plantName: data['health_status'] == 0
             ? "Healthy Leaf / Unknown plant"
             : data['analysis_status'] == 1
-                ? "Tomato Leaf with Virus"
+                ? data['virus_name']
                 : "Unknown plant",
         localPlantImage: data['image'],
         isPending: data['analysis_status'] == 0 ? true : false);
