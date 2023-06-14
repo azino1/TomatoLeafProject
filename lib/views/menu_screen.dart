@@ -294,7 +294,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                                 : plant.plantName == "Tomato Leaf with Virus"
                                     ? "Ganyen Tumatir mai Virus"
                                     : "Ba a sani ba shuka"
-                            : plant.virusName,
+                            : plant.plantName,
                         maxLines: 3,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w600)),
