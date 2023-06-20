@@ -1,7 +1,7 @@
 {
   "file_generated_by": "FlutterFire CLI",
   "purpose": "FirebaseAppID & ProjectID for this Firebase app in this directory",
-  "GOOGLE_APP_ID": "1:612655489633:ios:723b59d0bf6b8ce3388020",
-  "FIREBASE_PROJECT_ID": "tomato-virus-detector",
-  "GCM_SENDER_ID": "612655489633"
+  "GOOGLE_APP_ID": "1:161353466941:ios:c4ae2e4581e4adbc0f1654",
+  "FIREBASE_PROJECT_ID": "androidtomatoleaf",
+  "GCM_SENDER_ID": "161353466941"
 }

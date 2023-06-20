@@ -1,36 +1,27 @@
 {
   "project_info": {
-    "project_number": "612655489633",
-    "project_id": "tomato-virus-detector",
-    "storage_bucket": "tomato-virus-detector.appspot.com"
+    "project_number": "161353466941",
+    "firebase_url": "https://androidtomatoleaf-default-rtdb.firebaseio.com",
+    "project_id": "androidtomatoleaf",
+    "storage_bucket": "androidtomatoleaf.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:612655489633:android:66a4a54ffb7bb91a388020",
+        "mobilesdk_app_id": "1:161353466941:android:cf707a930d887d320f1654",
         "android_client_info": {
           "package_name": "com.example.tomato_leave_virus_mobile"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "612655489633-soba9mnn4kp7prr9jqv1qc8turaigema.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA5WIsdjFFGSirGBTjVALOEzFkWpwFxGgY"
+          "current_key": "AIzaSyAZpcySpi9GCSDKtEk_broojkY1wykrT_A"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "612655489633-soba9mnn4kp7prr9jqv1qc8turaigema.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
