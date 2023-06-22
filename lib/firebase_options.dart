@@ -50,20 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA5WIsdjFFGSirGBTjVALOEzFkWpwFxGgY',
-    appId: '1:612655489633:android:66a4a54ffb7bb91a388020',
-    messagingSenderId: '612655489633',
-    projectId: 'tomato-virus-detector',
-    storageBucket: 'tomato-virus-detector.appspot.com',
+    apiKey: 'AIzaSyAZpcySpi9GCSDKtEk_broojkY1wykrT_A',
+    appId: '1:161353466941:android:cf707a930d887d320f1654',
+    messagingSenderId: '161353466941',
+    projectId: 'androidtomatoleaf',
+    databaseURL: 'https://androidtomatoleaf-default-rtdb.firebaseio.com',
+    storageBucket: 'androidtomatoleaf.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCKW4lPHfzrl2QrHQEshiAOXOGZ8_otaYs',
-    appId: '1:612655489633:ios:723b59d0bf6b8ce3388020',
-    messagingSenderId: '612655489633',
-    projectId: 'tomato-virus-detector',
-    storageBucket: 'tomato-virus-detector.appspot.com',
-    iosClientId: '612655489633-cjf11fkma9te4a5a0fudmum29pqbcccc.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCQmDojitOWglMP3EpWmGprVDls7Nq6VNU',
+    appId: '1:161353466941:ios:c4ae2e4581e4adbc0f1654',
+    messagingSenderId: '161353466941',
+    projectId: 'androidtomatoleaf',
+    databaseURL: 'https://androidtomatoleaf-default-rtdb.firebaseio.com',
+    storageBucket: 'androidtomatoleaf.appspot.com',
     iosBundleId: 'com.example.tomatoLeaveVirusMobile',
   );
 }

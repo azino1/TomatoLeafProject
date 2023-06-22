@@ -8,6 +8,7 @@ import 'package:tomato_leave_virus_mobile/views/Login_screen.dart';
 import 'package:tomato_leave_virus_mobile/views/registration_screen.dart';
 
 import 'models/plant.dart';
+import 'views/firstpage.dart';
 import 'views/menu_screen.dart';
 import 'views/virus_detail_page.dart';
 
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const FirstPage(),
       ),
       GoRoute(
         path: RegistrationScreen.routeName,

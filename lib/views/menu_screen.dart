@@ -155,31 +155,81 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                 const SizedBox(
                   height: 10,
                 ),
-                InkWell(
-                  onTap: captureNewImage,
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 20, right: 20),
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: primaryColor),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.photo_camera_outlined,
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 20),
-                        Text(
-                          isHause ? "Sabon kamawa" : "New Capture",
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
+                PopupMenuButton(
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 20, right: 20),
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: primaryColor),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.photo_camera_outlined,
+                            size: 24,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 20),
+                          Text(
+                            isHause ? "Sabon kamawa" : "New Capture",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                  onSelected: (result) {
+                    captureNewImage(result == 2);
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.browse_gallery_outlined,
+                            size: 20.0,
+                            // color: appCardText,
+                          ),
+                          SizedBox(width: 8.0),
+                          Text(
+                            isHause ? "Daga gallery" : 'From Gallery',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {},
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.camera_alt_outlined,
+                            size: 20.0,
+                            // color: appCardText,
+                          ),
+                          SizedBox(width: 8.0),
+                          Text(
+                            isHause ? "Daga Kamara" : "From Camera",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {},
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
               ],
@@ -207,7 +257,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
           await sendLocalImageforAnalysis(plant);
           return;
         }
-        if (plant.plantName != "Tomato Leaf with Virus") {
+        if (plant.healthStatus != 1) {
           isHause
               ? showUpMessage(
                   context,
@@ -343,9 +393,14 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   }
 
   ///causes the camera to open for image capturing, thereafter activates the dialog box that displays the image picked.
-  void captureNewImage() async {
-    await pickImage();
-    showImageDailog();
+  void captureNewImage(bool fromCamera) async {
+    setState(() {
+      _imageFile = null;
+    });
+    await pickImage(fromCamera);
+    if (_imageFile != null) {
+      showImageDailog();
+    }
   }
 
   void showImageDailog() {
@@ -538,10 +593,10 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   }
 
   ///Does the actuall capturing of the image.
-  Future<void> pickImage() async {
+  Future<void> pickImage(bool fromCamera) async {
     try {
       final pickedFile = await _picker.pickImage(
-        source: ImageSource.camera,
+        source: fromCamera ? ImageSource.camera : ImageSource.gallery,
         maxWidth: 360.0,
         maxHeight: 360.0,
         imageQuality: 100,
