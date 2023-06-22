@@ -68,9 +68,9 @@ class FirebaseServices {
     }
   }
 
-  Future getVirusesData() async {
+  Future<List<Map<String, dynamic>>> getVirusesData() async {
     try {
-      List virusDoc = [];
+      List<Map<String, dynamic>> virusDoc = [];
       final virusSnapshot = await _virusCollection.get();
 
       for (QueryDocumentSnapshot<Object?> documentSnapshot
@@ -81,12 +81,7 @@ class FirebaseServices {
         virusDoc.add(data);
       }
 
-      print("virusDoc: ${virusDoc}");
-      // then((value) {
-      //   value.docs.forEach((element) {
-      //     print(element.data());
-      //   });
-      // });
+      return virusDoc;
     } catch (e) {
       rethrow;
     }

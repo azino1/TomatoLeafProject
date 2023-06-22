@@ -56,8 +56,12 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   /// as it is called inside [initState]
   Future<bool> fetchFuture() async {
     try {
+      await ref.read(plantsProvider).fetchVirusDataFromFirebase();
+    } catch (e) {
+      await ref.read(plantsProvider).fetchLocalVirusData();
+    }
+    try {
       await ref.read(plantsProvider).fetchPlants();
-      await FirebaseServices().getVirusesData();
       return true;
     } catch (e) {
       rethrow;
@@ -270,12 +274,14 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
           return;
         }
 
-        final index = englishInfo.indexWhere((element) => element['virusName']
-            .toLowerCase()
-            .contains(plant.virusName.toLowerCase()));
+        final viruses = ref.read(plantsProvider).virusList;
+
+        final index = viruses.indexWhere((element) =>
+            element.name.toLowerCase().contains(plant.virusName.toLowerCase()));
         if (index != -1) {
           context.push(VirusDetailPage.routeName, extra: plant);
         }
+        print(index);
       },
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -584,9 +590,10 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
         final int healthStatus =
             scanningResult.toLowerCase().contains("healthy")
                 ? 0
-                : scanningResult.toLowerCase().contains("virus")
+                : scanningResult.toLowerCase().contains("tomato")
                     ? 1
                     : 2;
+        print("the health status is $healthStatus");
         await ref
             .read(plantsProvider)
             .saveScannedPlant(scanningResult, healthStatus, imageData);
