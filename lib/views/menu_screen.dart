@@ -276,12 +276,17 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
 
         final viruses = ref.read(plantsProvider).virusList;
 
-        final index = viruses.indexWhere((element) =>
-            element.name.toLowerCase().contains(plant.virusName.toLowerCase()));
+        final index = viruses.indexWhere((element) {
+          // print("element ${element.name}");
+          // print("virus ${plant.virusName}");
+          return element.name
+              .toLowerCase()
+              .contains(plant.virusName.toLowerCase());
+        });
         if (index != -1) {
           context.push(VirusDetailPage.routeName, extra: plant);
         }
-        print(index);
+        // print(index);
       },
       child: Padding(
         padding: const EdgeInsets.all(15.0),

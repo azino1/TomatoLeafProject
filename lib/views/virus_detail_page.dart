@@ -8,6 +8,8 @@ import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 
 import '../constant.dart';
 import '../models/plant.dart';
+import '../models/virus_model.dart';
+import '../providers/plant_data_provider.dart';
 
 class VirusDetailPage extends ConsumerStatefulWidget {
   static const routeName = "/viruspage";
@@ -19,25 +21,27 @@ class VirusDetailPage extends ConsumerStatefulWidget {
 }
 
 class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
-  late Map<String, dynamic> virusDesJson;
-  List dataFile = [];
+  late Virus _virus;
+  String language = "english";
 
   @override
   void initState() {
     final isHause = ref.read(isHausa);
     if (isHause) {
-      dataFile = hausaInfo;
-    } else {
-      dataFile = englishInfo;
-    }
+      language = "hausa";
+    } else {}
 
-    final index = dataFile.indexWhere((element) => element['virusName']
-        .toLowerCase()
-        .contains(widget.plant.virusName.toLowerCase()));
+    final viruses = ref.read(plantsProvider).virusList;
+
+    final index = viruses.indexWhere((element) =>
+        element.name
+            .toLowerCase()
+            .contains(widget.plant.virusName.toLowerCase()) &&
+        element.language.toLowerCase() == language.toLowerCase());
 
     if (index != -1) {
       setState(() {
-        virusDesJson = dataFile[index];
+        _virus = viruses[index];
       });
     }
     super.initState();
@@ -117,7 +121,7 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  virusDesJson['virusName'],
+                  _virus.name,
                   style: const TextStyle(fontSize: 19),
                 ),
                 const SizedBox(height: 15),
@@ -129,7 +133,7 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                   height: 5,
                 ),
                 Text(
-                  virusDesJson['TAVtransmission'],
+                  _virus.management,
                   style: const TextStyle(fontSize: 19),
                 ),
                 const SizedBox(
@@ -139,17 +143,17 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                   isHause ? "Gudanar da TAV" : "TAV Management",
                   style: const TextStyle(color: hintTextColor, fontSize: 16),
                 ),
-                ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: Text((index + 1).toString()),
-                        title: Text(virusDesJson["TAVmanagement"][index]),
-                      );
-                    },
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemCount: virusDesJson["TAVmanagement"].length),
+                // ListView.separated(
+                //     physics: const NeverScrollableScrollPhysics(),
+                //     shrinkWrap: true,
+                //     itemBuilder: (context, index) {
+                //       return ListTile(
+                //         leading: Text((index + 1).toString()),
+                //         title: Text(virusDesJson["TAVmanagement"][index]),
+                //       );
+                //     },
+                //     separatorBuilder: (context, index) => const Divider(),
+                //     itemCount: virusDesJson["TAVmanagement"].length),
               ],
             ),
           );
