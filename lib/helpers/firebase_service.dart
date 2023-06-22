@@ -6,6 +6,12 @@ class FirebaseServices {
   CollectionReference _userCollection =
       FirebaseFirestore.instance.collection('users');
 
+  CollectionReference _virusCollection =
+      FirebaseFirestore.instance.collection('Virus');
+
+  ///This function is used to register user with phone number, first name, last name while email is optional
+  ///
+  ///It saves this data on the user collection in firestore
   Future<Map<String, dynamic>> registerUser({
     required String firstName,
     required String lastName,
@@ -38,6 +44,11 @@ class FirebaseServices {
     }
   }
 
+  ///This function is used to login user with phone number
+  ///It takes phone number as parameter and returns a map of user data
+  ///
+  ///It works by comparing the phone number passed in with the phone number in the firestore
+  ///If the phone number is found, it returns the user data
   Future<Map<String, dynamic>> loginUser(String phone) async {
     try {
       Map<String, dynamic> resultMap = {};
@@ -52,6 +63,30 @@ class FirebaseServices {
         resultMap = {...data, "id": documentSnapshot.id};
       }
       return resultMap;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future getVirusesData() async {
+    try {
+      List virusDoc = [];
+      final virusSnapshot = await _virusCollection.get();
+
+      for (QueryDocumentSnapshot<Object?> documentSnapshot
+          in virusSnapshot.docs) {
+        print('sdfsdf');
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+
+        virusDoc.add(data);
+      }
+
+      print("virusDoc: ${virusDoc}");
+      // then((value) {
+      //   value.docs.forEach((element) {
+      //     print(element.data());
+      //   });
+      // });
     } catch (e) {
       rethrow;
     }

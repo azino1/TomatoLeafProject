@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tomato_leave_virus_mobile/data.dart';
 import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
+import 'package:tomato_leave_virus_mobile/helpers/firebase_service.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 import 'package:tomato_leave_virus_mobile/providers/user_provider.dart';
 
@@ -56,6 +57,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   Future<bool> fetchFuture() async {
     try {
       await ref.read(plantsProvider).fetchPlants();
+      await FirebaseServices().getVirusesData();
       return true;
     } catch (e) {
       rethrow;
