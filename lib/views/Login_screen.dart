@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     InkWell(
                       //takes the user to the previous screen
-                      onTap: () => context.pop(),
+                      onTap: () => context.go(RegistrationScreen.routeName),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: const BoxDecoration(

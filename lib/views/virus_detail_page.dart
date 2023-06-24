@@ -33,17 +33,19 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
 
     final viruses = ref.read(plantsProvider).virusList;
 
-    final index = viruses.indexWhere((element) =>
-        element.name
-            .toLowerCase()
-            .contains(widget.plant.virusName.toLowerCase()) &&
-        element.language.toLowerCase() == language.toLowerCase());
+    final index = viruses.indexWhere((element) {
+      print(element.language);
+      return element.name.toLowerCase().replaceAll("_", "").contains(
+              widget.plant.virusName.toLowerCase().replaceAll("_", "")) &&
+          element.language.toLowerCase() == language.toLowerCase();
+    });
 
     if (index != -1) {
       setState(() {
         _virus = viruses[index];
       });
     }
+    print("index:... $index");
     super.initState();
   }
 
@@ -143,17 +145,17 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                   isHause ? "Gudanar da TAV" : "TAV Management",
                   style: const TextStyle(color: hintTextColor, fontSize: 16),
                 ),
-                // ListView.separated(
-                //     physics: const NeverScrollableScrollPhysics(),
-                //     shrinkWrap: true,
-                //     itemBuilder: (context, index) {
-                //       return ListTile(
-                //         leading: Text((index + 1).toString()),
-                //         title: Text(virusDesJson["TAVmanagement"][index]),
-                //       );
-                //     },
-                //     separatorBuilder: (context, index) => const Divider(),
-                //     itemCount: virusDesJson["TAVmanagement"].length),
+                ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: Text((index + 1).toString()),
+                        title: Text(_virus.transmission[index]),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemCount: _virus.transmission.length),
               ],
             ),
           );

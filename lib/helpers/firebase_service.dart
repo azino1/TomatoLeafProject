@@ -75,7 +75,6 @@ class FirebaseServices {
 
       for (QueryDocumentSnapshot<Object?> documentSnapshot
           in virusSnapshot.docs) {
-        print('sdfsdf');
         final data = documentSnapshot.data() as Map<String, dynamic>;
 
         virusDoc.add(data);

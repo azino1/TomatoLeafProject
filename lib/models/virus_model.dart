@@ -2,7 +2,7 @@ class Virus {
   final String name;
   final String about;
   final String management;
-  final String transmission;
+  final List transmission;
   final String language;
 
   Virus({
@@ -19,7 +19,7 @@ class Virus {
       'about': about,
       'language': language,
       'management': management,
-      'transmission': transmission,
+      'transmission': transmission.join('-'),
     };
   }
 
@@ -29,7 +29,7 @@ class Virus {
       about: map['about'],
       language: language,
       management: map['management'],
-      transmission: map['transmission'],
+      transmission: map['transmission'].split('-'),
     );
   }
 }
