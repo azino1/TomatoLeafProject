@@ -1,8 +1,8 @@
 class Virus {
   final String name;
-  final String about;
-  final String management;
-  final List transmission;
+  final String? about;
+  final List management;
+  final String transmission;
   final String language;
 
   Virus({
@@ -18,8 +18,8 @@ class Virus {
       'name': name,
       'about': about,
       'language': language,
-      'management': management,
-      'transmission': transmission.join('-'),
+      'management': management.join('-'),
+      'transmission': transmission,
     };
   }
 
@@ -28,8 +28,8 @@ class Virus {
       name: map['name'],
       about: map['about'],
       language: language,
-      management: map['management'],
-      transmission: map['transmission'].split('-'),
+      management: map['management'].split('-'),
+      transmission: map['transmission'],
     );
   }
 }

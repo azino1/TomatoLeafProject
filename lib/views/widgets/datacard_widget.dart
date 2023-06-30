@@ -54,12 +54,13 @@ class _DataCardState extends ConsumerState<DataCard> {
                   'Fadakarwa')
               : showUpMessage(context,
                   "The leaf is healthy or it is an unknown object", 'Alert');
+
           return;
         }
 
         final viruses = ref.read(plantsProvider).virusList;
 
-        final index = viruses.lastIndexWhere((element) {
+        final index = viruses.indexWhere((element) {
           print("element ${element.name.toLowerCase()}");
           print(
               "virus ${widget.plant.virusName.toLowerCase().replaceAll("_", "")}");
@@ -77,7 +78,7 @@ class _DataCardState extends ConsumerState<DataCard> {
               : showUpMessage(context,
                   "The leaf is healthy or it is an unknown object", 'Alert');
         }
-        print(index);
+        print("inde $index");
       },
       child: Padding(
         padding: const EdgeInsets.all(15.0),

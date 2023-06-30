@@ -157,6 +157,8 @@ class PlantDataProvider extends ChangeNotifier {
   Future<void> fetchVirusDataFromFirebase() async {
     try {
       final virusDataList = await FirebaseServices().getVirusesData();
+      print("virus list $virusDataList");
+
       virusDataList.forEach((element) {
         element.forEach((key, value) {
           _virusList.add(Virus.fromMap(value, key));
@@ -170,6 +172,7 @@ class PlantDataProvider extends ChangeNotifier {
       _virusList.forEach((element) async {
         await DBHelper.insertVirusItem(element);
       });
+      print("virus list $_virusList");
       notifyListeners();
     } catch (e) {
       rethrow;
@@ -185,4 +188,6 @@ class PlantDataProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+
 }
