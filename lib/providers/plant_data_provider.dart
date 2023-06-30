@@ -189,5 +189,17 @@ class PlantDataProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> removePlant(String plantId) async {
+    try {
+      final index = _plantList.indexWhere((element) => element.id == plantId);
 
+      if (index != -1) {
+        await DBHelper.deleteData('plants_data', plantId);
+        _plantList.removeAt(index);
+        notifyListeners();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

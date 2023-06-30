@@ -100,20 +100,20 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                           image: MemoryImage(widget.plant.localPlantImage!),
                           fit: BoxFit.cover)),
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  isHause ? "shuka Sunan" : "plant Name",
-                  style: const TextStyle(color: hintTextColor, fontSize: 16),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  isHause ? "Tumatir" : widget.plant.plantName,
-                  style: const TextStyle(fontSize: 19),
-                ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // Text(
+                //   isHause ? "shuka Sunan" : "plant Name",
+                //   style: const TextStyle(color: hintTextColor, fontSize: 16),
+                // ),
+                // const SizedBox(
+                //   height: 5,
+                // ),
+                // Text(
+                //   isHause ? "Tumatir" : widget.plant.plantName,
+                //   style: const TextStyle(fontSize: 19),
+                // ),
                 const SizedBox(
                   height: 15,
                 ),

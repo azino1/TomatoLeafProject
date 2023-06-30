@@ -80,67 +80,101 @@ class _DataCardState extends ConsumerState<DataCard> {
         }
         print("inde $index");
       },
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Consumer(builder: (context, ref, child) {
-              final isHause = ref.watch(isHausa);
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 220,
-                    child: Text(
-                        isHause
-                            ? widget.plant.plantName ==
-                                    "Healthy Leaf / Unknown plant"
-                                ? "Lafiyayyan Leaf / Ba a sani ba shuka"
-                                : widget.plant.plantName ==
-                                        "Tomato Leaf with Virus"
-                                    ? "Ganyen Tumatir mai Virus"
-                                    : "Ba a sani ba shuka"
-                            : widget.plant.plantName,
-                        maxLines: 3,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
-                  ),
-                  isScanningLocal
-                      ? SizedBox(
-                          height: 30,
-                          width: 30,
-                          child: CircularProgressIndicator.adaptive(
-                            backgroundColor: primaryColor,
-                          ),
-                        )
-                      : Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: widget.plant.isPending
-                                      ? const Color(0xffF4CE6B)
-                                      : Colors.greenAccent),
-                              child: !widget.plant.isPending
-                                  ? isHause
-                                      ? const Text('Yi')
-                                      : const Text('Done')
-                                  : isHause
-                                      ? const Text('jiran')
-                                      : const Text('Pending'),
+      child: Dismissible(
+        key: ValueKey(widget.plant.id),
+        background: Container(
+            color: Colors.red,
+            padding: const EdgeInsets.all(11),
+            child: const Icon(Icons.delete, color: Colors.white),
+            alignment: Alignment.centerRight),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (direction) {
+          return showDialog(
+              context: context,
+              builder: (builder) {
+                return AlertDialog(
+                  title: const Text('Removing Plant'),
+                  content: const Text('Do you want to remove this plant?'),
+                  actions: [
+                    TextButton(
+                        child: const Text("YES"),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        }),
+                    TextButton(
+                        child: const Text("NO"),
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        })
+                  ],
+                );
+              });
+        },
+        onDismissed: (direction) {
+          ref.read(plantsProvider).removePlant(widget.plant.id);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Consumer(builder: (context, ref, child) {
+                final isHause = ref.watch(isHausa);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: 220,
+                      child: Text(
+                          isHause
+                              ? widget.plant.plantName ==
+                                      "Healthy Leaf / Unknown plant"
+                                  ? "Lafiyayyan Leaf / Ba a sani ba shuka"
+                                  : widget.plant.plantName ==
+                                          "Tomato Leaf with Virus"
+                                      ? "Ganyen Tumatir mai Virus"
+                                      : "Ba a sani ba shuka"
+                              : widget.plant.plantName,
+                          maxLines: 3,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600)),
+                    ),
+                    isScanningLocal
+                        ? SizedBox(
+                            height: 30,
+                            width: 30,
+                            child: CircularProgressIndicator.adaptive(
+                              backgroundColor: primaryColor,
                             ),
-                            const SizedBox(width: 15),
-                            const Icon(Icons.arrow_forward_ios)
-                          ],
-                        )
-                ],
-              );
-            }),
-            const SizedBox(height: 5),
-            Text(DateFormat.yMd().format(widget.plant.time))
-          ],
+                          )
+                        : Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: widget.plant.isPending
+                                        ? const Color(0xffF4CE6B)
+                                        : Colors.greenAccent),
+                                child: !widget.plant.isPending
+                                    ? isHause
+                                        ? const Text('Yi')
+                                        : const Text('Done')
+                                    : isHause
+                                        ? const Text('jiran')
+                                        : const Text('Pending'),
+                              ),
+                              const SizedBox(width: 15),
+                              const Icon(Icons.arrow_forward_ios)
+                            ],
+                          )
+                  ],
+                );
+              }),
+              const SizedBox(height: 5),
+              Text(DateFormat.yMd().format(widget.plant.time))
+            ],
+          ),
         ),
       ),
     );
