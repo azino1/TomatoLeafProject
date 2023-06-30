@@ -12,6 +12,7 @@ import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
 import 'package:tomato_leave_virus_mobile/helpers/firebase_service.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 import 'package:tomato_leave_virus_mobile/providers/user_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../constant.dart';
 import '../models/plant.dart';
@@ -241,6 +242,37 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
+                InkWell(
+                  onTap: () async {
+                    final url =
+                        Uri.parse('https://forms.gle/duEEmC6uycaCBXzk6');
+                    var canLauch = await canLaunchUrl(url);
+                    print("cn lauch is $canLauch");
+                    if (canLauch) {
+                      await launchUrl(url,
+                          mode: LaunchMode.externalApplication);
+                    } else {
+                      showUpMessage(
+                          context, 'can not open now. try again', 'error');
+                    }
+                  },
+                  child: Center(
+                      child: Container(
+                    margin: const EdgeInsets.only(left: 20, right: 20),
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: primaryColor),
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.white),
+                    child: Center(
+                      child: Text(
+                        "please share your feedback here",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )),
+                ),
                 const SizedBox(height: 20),
               ],
             );
