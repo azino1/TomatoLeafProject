@@ -98,14 +98,17 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color.fromRGBO(241, 245, 249, 1)),
-                        child: Icon(
-                          Icons.close,
-                          color: primaryColor,
+                      InkWell(
+                        onTap: () => context.go(LoginScreen.routeName),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color.fromRGBO(241, 245, 249, 1)),
+                          child: Icon(
+                            Icons.close,
+                            color: primaryColor,
+                          ),
                         ),
                       ),
                       TextButton(

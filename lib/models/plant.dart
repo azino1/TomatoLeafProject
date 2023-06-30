@@ -36,8 +36,8 @@ class Plant {
         healthStatus: data['health_status'],
         plantName: data['health_status'] == 0
             ? "Healthy Leaf / Unknown plant"
-            : data['analysis_status'] == 1
-                ? data['virus_name']
+            : (data['analysis_status'] == 1 && data['health_status'] == 1)
+                ? data['virus_name'].toString().replaceAll("_", " ")
                 : "Unknown plant",
         localPlantImage: data['image'],
         isPending: data['analysis_status'] == 0 ? true : false);

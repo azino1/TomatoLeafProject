@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:tomato_leave_virus_mobile/helpers/firebase_service.dart';
+import 'package:tomato_leave_virus_mobile/models/virus_model.dart';
 import 'package:uuid/uuid.dart';
 
 import '../helpers/db.dart';
@@ -16,8 +18,12 @@ class PlantDataProvider extends ChangeNotifier {
   /// An array that holds all the plants captured by a user. it being hold as a private variable
   List<Plant> _plantList = [];
 
+  List<Virus> _virusList = [];
+
   /// A plants getter that get Array of item from _plantList
   List<Plant> get plantList => _plantList.reversed.toList();
+
+  List<Virus> get virusList => _virusList;
 
   /// Listens to user request to fetch plants data both locally and from server.
   ///
@@ -58,7 +64,7 @@ class PlantDataProvider extends ChangeNotifier {
               : "Unknown plant";
     }
 
-    await DBHelper.updateData(
+    await DBHelper.updatePlantData(
         'plants_data',
         {
           "virus_name": virusName,
@@ -85,8 +91,8 @@ class PlantDataProvider extends ChangeNotifier {
         virusName: virusName,
         plantName: healthStatus == 0
             ? "Healthy Leaf / Unknown plant"
-            : healthStatus <= 1
-                ? "Tomato Leaf with Virus"
+            : healthStatus == 1
+                ? virusName.replaceAll("_", " ")
                 : "Unknown Plant",
         localPlantImage: localPlantImage,
         isPending: false);
@@ -145,5 +151,38 @@ class PlantDataProvider extends ChangeNotifier {
 
       //TODO: clear the database
     } catch (e) {}
+  }
+
+  ///This function fetches all the virus data from firebase and save it locally
+  Future<void> fetchVirusDataFromFirebase() async {
+    try {
+      final virusDataList = await FirebaseServices().getVirusesData();
+      virusDataList.forEach((element) {
+        element.forEach((key, value) {
+          _virusList.add(Virus.fromMap(value, key));
+        });
+      });
+      final virustList = await DBHelper.getVirusItems();
+      if (virustList.isNotEmpty) {
+        await DBHelper.deleteAllVirusData('virus_data');
+      }
+
+      _virusList.forEach((element) async {
+        await DBHelper.insertVirusItem(element);
+      });
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> fetchLocalVirusData() async {
+    try {
+      final virusList = await DBHelper.getVirusItems();
+      _virusList = virusList;
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
   }
 }

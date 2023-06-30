@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tomato_leave_virus_mobile/data.dart';
 import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
+import 'package:tomato_leave_virus_mobile/helpers/firebase_service.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 import 'package:tomato_leave_virus_mobile/providers/user_provider.dart';
 
@@ -16,6 +17,7 @@ import '../constant.dart';
 import '../models/plant.dart';
 import '../providers/plant_data_provider.dart';
 import 'virus_detail_page.dart';
+import 'widgets/datacard_widget.dart';
 
 class NewCaptureScreen extends ConsumerStatefulWidget {
   static const routeName = "/new-captured";
@@ -32,6 +34,8 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   XFile? _imageFile;
 
   File? file;
+
+  bool isScanningLocal = false;
 
   Language _selectedLanguage = Language.english;
 
@@ -54,6 +58,11 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   ///This functions is expected to load before the screen build,
   /// as it is called inside [initState]
   Future<bool> fetchFuture() async {
+    try {
+      await ref.read(plantsProvider).fetchVirusDataFromFirebase();
+    } catch (e) {
+      await ref.read(plantsProvider).fetchLocalVirusData();
+    }
     try {
       await ref.read(plantsProvider).fetchPlants();
       return true;
@@ -131,7 +140,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                         : Expanded(
                             child: ListView.separated(
                                 itemBuilder: (context, index) {
-                                  return dataCard(plants[index]);
+                                  return DataCard(plant: plants[index]);
                                 },
                                 separatorBuilder: (context, index) =>
                                     const Divider(),
@@ -236,97 +245,6 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
             );
           }),
         ],
-      ),
-    );
-  }
-
-  Widget dataCard(Plant plant) {
-    final isHause = ref.watch(isHausa);
-    return InkWell(
-      onTap: () async {
-        if (plant.plantName == "Unknown plant" && plant.isPending) {
-          isHause
-              ? showUpMessage(
-                  context,
-                  "Shuka yana dubawa, da fatan za a jira. Ana dubawa zai iya ɗaukar har zuwa mintuna 5",
-                  "Sanarwa!")
-              : showUpMessage(
-                  context,
-                  "Plant is scanning, please wait. Scanning could take up to 5 minutes",
-                  "Notice!");
-          await sendLocalImageforAnalysis(plant);
-          return;
-        }
-        if (plant.healthStatus != 1) {
-          isHause
-              ? showUpMessage(
-                  context,
-                  "Ganyen yana da lafiya ko kuma wani abu ne da ba a sani ba",
-                  'Fadakarwa')
-              : showUpMessage(context,
-                  "The leaf is healthy or it is an unknown object", 'Alert');
-          return;
-        }
-
-        final index = englishInfo.indexWhere((element) => element['virusName']
-            .toLowerCase()
-            .contains(plant.virusName.toLowerCase()));
-        if (index != -1) {
-          context.push(VirusDetailPage.routeName, extra: plant);
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Consumer(builder: (context, ref, child) {
-              final isHause = ref.watch(isHausa);
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 220,
-                    child: Text(
-                        isHause
-                            ? plant.plantName == "Healthy Leaf / Unknown plant"
-                                ? "Lafiyayyan Leaf / Ba a sani ba shuka"
-                                : plant.plantName == "Tomato Leaf with Virus"
-                                    ? "Ganyen Tumatir mai Virus"
-                                    : "Ba a sani ba shuka"
-                            : plant.plantName,
-                        maxLines: 3,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: plant.isPending
-                                ? const Color(0xffF4CE6B)
-                                : Colors.greenAccent),
-                        child: !plant.isPending
-                            ? isHause
-                                ? const Text('Yi')
-                                : const Text('Done')
-                            : isHause
-                                ? const Text('jiran')
-                                : const Text('Pending'),
-                      ),
-                      const SizedBox(width: 15),
-                      const Icon(Icons.arrow_forward_ios)
-                    ],
-                  )
-                ],
-              );
-            }),
-            const SizedBox(height: 5),
-            Text(DateFormat.yMd().format(plant.time))
-          ],
-        ),
       ),
     );
   }
@@ -519,43 +437,6 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
     );
   }
 
-  ///resend the locally saved image to the ML model.
-  Future<void> sendLocalImageforAnalysis(Plant plant) async {
-    bool result = await InternetConnectionChecker().hasConnection;
-    final isHause = ref.read(isHausa);
-    if (!result) {
-      if (mounted) {
-        isHause
-            ? errorUpMessage(context,
-                'Babu Intanet. Za mu adana hotonku a gida', 'Fadakarwa')
-            : errorUpMessage(context,
-                'No Internet.. We will save your image locally', 'Alert');
-        await Future.delayed(const Duration(seconds: 2));
-      }
-    } else {
-      if (plant.localPlantImage == null) return;
-      // Get the temporary directory
-      Directory tempDir = Directory.systemTemp;
-
-      // Create a File object in the temporary directory
-      File file = File('${tempDir.path}/file.jpeg');
-      final newFile = await file.writeAsBytes(plant.localPlantImage!);
-
-      // final filePath = File.fromRawPath(plant.localPlantImage!).path;
-      final scanningResult =
-          await ApiServices.predictPlantDisease(newFile.path);
-
-      final int healthStatus = scanningResult.toLowerCase().contains("healthy")
-          ? 0
-          : scanningResult.toLowerCase().contains("virus")
-              ? 1
-              : 2;
-      await ref
-          .read(plantsProvider)
-          .updateAnalysedLocalPlant(plant.id, healthStatus, scanningResult);
-    }
-  }
-
   ///submit the image picked to the ML model.
   ///
   ///
@@ -576,18 +457,24 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
       await ref.read(plantsProvider).saveUnScannedPlantLocally(imageData);
     } else {
       if (_imageFile != null) {
-        final scanningResult =
-            await ApiServices.predictPlantDisease(_imageFile!.path);
+        try {
+          final scanningResult =
+              await ApiServices.predictPlantDisease(_imageFile!.path);
 
-        final int healthStatus =
-            scanningResult.toLowerCase().contains("healthy")
-                ? 0
-                : scanningResult.toLowerCase().contains("virus")
-                    ? 1
-                    : 2;
-        await ref
-            .read(plantsProvider)
-            .saveScannedPlant(scanningResult, healthStatus, imageData);
+          final int healthStatus =
+              scanningResult.toLowerCase().contains("healthy")
+                  ? 0
+                  : scanningResult.toLowerCase().contains("tomato")
+                      ? 1
+                      : 2;
+          print("the health status is $healthStatus");
+          await ref
+              .read(plantsProvider)
+              .saveScannedPlant(scanningResult, healthStatus, imageData);
+        } catch (e) {
+          print(e);
+          errorUpMessage(context, e.toString(), 'Error');
+        }
       }
     }
   }
