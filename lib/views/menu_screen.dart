@@ -60,10 +60,8 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
   Future<bool> fetchFuture() async {
     try {
       await ref.read(plantsProvider).fetchVirusDataFromFirebase();
-      print("first------");
     } catch (e) {
       await ref.read(plantsProvider).fetchLocalVirusData();
-      print("second-------");
     }
     try {
       await ref.read(plantsProvider).fetchPlants();
@@ -242,6 +240,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 const SizedBox(height: 20),
               ],
             );
