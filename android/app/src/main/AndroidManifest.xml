@@ -11,7 +11,7 @@
  
   </queries>
    <application
-        android:label="Tomatoes Virus Detector"
+        android:label="Tomato Leaf Disease Predictor"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

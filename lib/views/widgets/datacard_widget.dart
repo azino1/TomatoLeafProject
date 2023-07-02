@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -133,7 +131,10 @@ class _DataCardState extends ConsumerState<DataCard> {
                                   : widget.plant.plantName ==
                                           "Tomato Leaf with Virus"
                                       ? "Ganyen Tumatir mai Virus"
-                                      : "Ba a sani ba shuka"
+                                      : widget.plant.plantName ==
+                                              'Unknown Plant'
+                                          ? "Ba a sani ba shuka"
+                                          : widget.plant.plantName
                               : widget.plant.plantName,
                           maxLines: 3,
                           style: const TextStyle(
