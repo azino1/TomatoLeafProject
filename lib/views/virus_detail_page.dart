@@ -100,20 +100,20 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                           image: MemoryImage(widget.plant.localPlantImage!),
                           fit: BoxFit.cover)),
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  isHause ? "shuka Sunan" : "plant Name",
-                  style: const TextStyle(color: hintTextColor, fontSize: 16),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  isHause ? "Tumatir" : widget.plant.plantName,
-                  style: const TextStyle(fontSize: 19),
-                ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // Text(
+                //   isHause ? "shuka Sunan" : "plant Name",
+                //   style: const TextStyle(color: hintTextColor, fontSize: 16),
+                // ),
+                // const SizedBox(
+                //   height: 5,
+                // ),
+                // Text(
+                //   isHause ? "Tumatir" : widget.plant.plantName,
+                //   style: const TextStyle(fontSize: 19),
+                // ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -135,7 +135,7 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                   height: 5,
                 ),
                 Text(
-                  _virus.management,
+                  _virus.transmission,
                   style: const TextStyle(fontSize: 19),
                 ),
                 const SizedBox(
@@ -151,11 +151,11 @@ class _VirusDetailPageState extends ConsumerState<VirusDetailPage> {
                     itemBuilder: (context, index) {
                       return ListTile(
                         leading: Text((index + 1).toString()),
-                        title: Text(_virus.transmission[index]),
+                        title: Text(_virus.management[index]),
                       );
                     },
                     separatorBuilder: (context, index) => const Divider(),
-                    itemCount: _virus.transmission.length),
+                    itemCount: _virus.management.length),
               ],
             ),
           );

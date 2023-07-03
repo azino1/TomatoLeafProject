@@ -12,6 +12,8 @@ import 'package:tomato_leave_virus_mobile/helpers/api_call.dart';
 import 'package:tomato_leave_virus_mobile/helpers/firebase_service.dart';
 import 'package:tomato_leave_virus_mobile/providers/language_provider.dart';
 import 'package:tomato_leave_virus_mobile/providers/user_provider.dart';
+import 'package:tomato_leave_virus_mobile/views/Login_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../constant.dart';
 import '../models/plant.dart';
@@ -131,7 +133,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
 
                     return plants.isEmpty
                         ? SizedBox(
-                            height: deviceSize.height * 0.52,
+                            height: deviceSize.height * 0.50,
                             child: Center(
                                 child: Text(isHause
                                     ? "Har yanzu ba a kama Shuka ba"
@@ -240,6 +242,52 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                InkWell(
+                  onTap: () async {
+                    final url =
+                        Uri.parse('https://forms.gle/duEEmC6uycaCBXzk6');
+                    var canLauch = await canLaunchUrl(url);
+                    print("cn lauch is $canLauch");
+                    if (canLauch) {
+                      await launchUrl(url,
+                          mode: LaunchMode.externalApplication);
+                    } else {
+                      final isHause = ref.watch(isHausa);
+
+                      showUpMessage(
+                          context,
+                          isHause
+                              ? "ba zai iya budewa yanzu. gwada kuma "
+                              : 'can not open now. try again',
+                          isHause ? 'kuskure' : 'error');
+                    }
+                  },
+                  child: Center(
+                      child: Container(
+                    margin: const EdgeInsets.only(left: 20, right: 20),
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: primaryColor),
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.white),
+                    child: Center(
+                      child: Consumer(builder: (context, ref, _) {
+                        final isHause = ref.read(isHausa);
+                        return isHause
+                            ? Text(
+                                "don Allah raba ra'ayoyin ku anan",
+                                textAlign: TextAlign.center,
+                              )
+                            : Text(
+                                "please share your feedback here",
+                                textAlign: TextAlign.center,
+                              );
+                      }),
+                    ),
+                  )),
+                ),
                 const SizedBox(height: 20),
               ],
             );
@@ -247,6 +295,11 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
         ],
       ),
     );
+  }
+
+  void logoutUser() async {
+    await ref.read(userProvider).logoutUser();
+    context.push(LoginScreen.routeName);
   }
 
   /// The appBar widget of the capturing screen
@@ -259,51 +312,75 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
         padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
         height: sizeDevice.height * 0.22,
         decoration: BoxDecoration(color: primaryColor),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Column(
           children: [
-            Consumer(builder: (context, ref, child) {
-              final isHause = ref.watch(isHausa);
-              return RichText(
-                text: TextSpan(children: [
-                  TextSpan(text: !isHause ? 'Welcome, ' : "Barka da zuwa, "),
-                  TextSpan(
-                      text: user != null
-                          ? "${user.firstName} ${user.lastName}"
-                          : 'Anonymous User')
-                ], style: const TextStyle(color: Colors.white, fontSize: 18)),
-              );
-            }),
+            SizedBox(
+              height: sizeDevice.height * 0.08,
+            ),
             Align(
-              alignment: Alignment.bottomCenter,
-              child: DropdownButton(
-                  value: _selectedLanguage,
-                  underline: null,
-                  dropdownColor: primaryColor,
-                  borderRadius: BorderRadius.circular(8),
-                  iconSize: 20,
-                  items: const [
-                    DropdownMenuItem(
-                        value: Language.english,
-                        child: Text('English',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 12))),
-                    DropdownMenuItem(
-                        value: Language.hausa,
-                        child: Text('Hausa',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 12))),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        _selectedLanguage = val;
-                      });
-                      ref.read(isHausa.notifier).changeLanguage(val);
-                    }
-                  }),
-            )
+              alignment: Alignment.bottomLeft,
+              child: InkWell(
+                onTap: logoutUser,
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: sizeDevice.height * 0.02,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Consumer(builder: (context, ref, child) {
+                  final isHause = ref.watch(isHausa);
+                  return RichText(
+                    text: TextSpan(
+                        children: [
+                          TextSpan(
+                              text: !isHause ? 'Welcome, ' : "Barka da zuwa, "),
+                          TextSpan(
+                              text: user != null
+                                  ? "${user.firstName} ${user.lastName}"
+                                  : 'Anonymous User')
+                        ],
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 18)),
+                  );
+                }),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: DropdownButton(
+                      value: _selectedLanguage,
+                      underline: null,
+                      dropdownColor: primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                      iconSize: 20,
+                      items: const [
+                        DropdownMenuItem(
+                            value: Language.english,
+                            child: Text('English',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 12))),
+                        DropdownMenuItem(
+                            value: Language.hausa,
+                            child: Text('Hausa',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 12))),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() {
+                            _selectedLanguage = val;
+                          });
+                          ref.read(isHausa.notifier).changeLanguage(val);
+                        }
+                      }),
+                )
+              ],
+            ),
           ],
         ),
       );

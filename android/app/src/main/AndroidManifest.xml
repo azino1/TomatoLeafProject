@@ -2,8 +2,16 @@
     package="com.example.tomato_leave_virus_mobile">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+     <queries>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="https" />
+    </intent>
+ 
+  </queries>
    <application
-        android:label="Tomatoes Virus Detector"
+        android:label="Tomato Leaf Disease Predictor"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

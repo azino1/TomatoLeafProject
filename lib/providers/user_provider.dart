@@ -52,4 +52,18 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
     return true;
   }
+
+  ///This function logout a user.
+  ///
+  ///It changes the user object to null and remove the login data saved on temp storage.
+  ///Anyone who call this function is expected to route the user back to the login screen.
+  Future<void> logoutUser() async {
+    _user = null;
+    try {
+      final pref =
+          await SharedPreferences.getInstance(); //Obtain shared preferences.
+      pref.remove("loginData");
+    } catch (e) {}
+    notifyListeners();
+  }
 }
