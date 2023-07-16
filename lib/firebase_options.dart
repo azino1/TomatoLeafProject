@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAZpcySpi9GCSDKtEk_broojkY1wykrT_A',
-    appId: '1:161353466941:android:cf707a930d887d320f1654',
+    appId: '1:161353466941:android:c9daf643b75832af0f1654',
     messagingSenderId: '161353466941',
     projectId: 'androidtomatoleaf',
     databaseURL: 'https://androidtomatoleaf-default-rtdb.firebaseio.com',
