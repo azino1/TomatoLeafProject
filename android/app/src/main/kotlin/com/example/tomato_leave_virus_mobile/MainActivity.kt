@@ -1,4 +1,4 @@
-package com.example.tomato_leave_virus_mobile
+package com.tomatoleafdiseasepredict.app
 
 import io.flutter.embedding.android.FlutterActivity
 
