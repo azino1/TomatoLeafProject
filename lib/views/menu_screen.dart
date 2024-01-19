@@ -310,7 +310,7 @@ class _NewCaptureScreenState extends ConsumerState<NewCaptureScreen> {
       final user = ref.read(userProvider).mainUser;
       return Container(
         padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-        height: sizeDevice.height * 0.22,
+        height: sizeDevice.height * 0.25,
         decoration: BoxDecoration(color: primaryColor),
         child: Column(
           children: [

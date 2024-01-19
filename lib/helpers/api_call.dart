@@ -15,7 +15,7 @@ class ApiServices {
           await http.MultipartFile.fromPath('image', xFilePath);
       print("2");
       var request = http.MultipartRequest(
-          'POST', Uri.parse("http://18.133.228.129/predict"))
+          'POST', Uri.parse("http://209.145.54.217:8000/predict"))
         // ..fields.addAll(_body)
         ..headers.addAll(headers)
         ..files.add(multiPartFile);
